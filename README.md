@@ -1,5 +1,10 @@
 # Capstone-Project
 
+to run this application: 
+
+1. Run `npm start` in the `backend` folder to start your server on the port defined
+in the `.env` file, which should be `8000`.
+
 
 # -------------------------------------------
 # MVP Feature List:
@@ -27,7 +32,8 @@ Users can upload images to their posts. Posts will include an image_url field to
 # -------------------------------------------
 # Database Schema
 
-![db_diagram](https://github.com/user-attachments/assets/d5c80440-796d-45a8-851d-6191a146ac8e)
+![db_diagram]
+[db-schema]: ./images/db_diagram.png
 
 # -------------------------------------------
 # User Stories for Core Features
