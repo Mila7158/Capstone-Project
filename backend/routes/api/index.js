@@ -20,6 +20,7 @@ router.get(
   }
 );
 
+// Keep this route to test frontend setup in Mod 5
 router.post('/test', function(req, res) {
     res.json({ requestBody: req.body });
 });
