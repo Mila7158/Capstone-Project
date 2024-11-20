@@ -7,11 +7,19 @@ WORKDIR /app
 # Copy package.json and package-lock.json
 COPY ./package*.json ./
 
-# Install only production dependencies
-RUN npm install --production
+# Install all dependencies (including dev dependencies for build process)
+RUN npm install
 
 # Copy the rest of the application code
 COPY . .
+
+# Run the build command to prepare the application
+RUN npm install && \
+    npm run build && \
+    npm run sequelize --prefix backend db:seed:undo:all && \
+    npm run sequelize --prefix backend db:migrate:undo:all && \
+    npm run sequelize --prefix backend db:migrate && \
+    npm run sequelize --prefix backend db:seed:all
 
 # Expose the backend's port
 EXPOSE 8000
@@ -21,4 +29,4 @@ ENV NODE_ENV=production
 ENV PORT=8000
 
 # Command to start the backend server
-CMD ["npm", "run", "start:production"]
+CMD ["npm", "start"]
