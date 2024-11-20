@@ -114,7 +114,7 @@ npx dotenv sequelize db:seed:undo
 npx dotenv sequelize db:seed:undo:all
 ```
 
-# The best way to update migrations and seeds in database after making some changes in files is to DELETE db file and run: 
+# The best way to update migrations and seeds in database after making some changes in files is to DELETE db file and run from backend directory: 
 
 ```bash
 npx dotenv sequelize db:migrate

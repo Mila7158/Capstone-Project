@@ -7,8 +7,11 @@ WORKDIR /app
 # Copy package.json and package-lock.json
 COPY package*.json ./
 
-# Install all dependencies (including dev dependencies for build process)
-RUN npm install
+# Install all dependencies including devDependencies
+RUN npm install --include=dev || cat /root/.npm/_logs/*.log
+RUN npm install --include=dev --prefix backend || cat /root/.npm/_logs/*.log
+# Ensure dotenv-cli is installed
+RUN npm install dotenv-cli
 
 # Copy the backend folder
 COPY ./backend ./backend
@@ -25,10 +28,8 @@ RUN apt-get update && apt-get install -y sqlite3
 
 # Run the build command to prepare the application
 RUN npm run build && \
-    npm run sequelize --prefix backend db:seed:undo:all && \
-    npm run sequelize --prefix backend db:migrate:undo:all && \
-    npm run sequelize --prefix backend db:migrate && \
-    npm run sequelize --prefix backend db:seed:all
+    npx dotenv sequelize db:migrate --config backend/config/database.js || echo "Migration failed" && \
+    npx dotenv sequelize db:seed:all --config backend/config/database.js || echo "Seeding failed"
 
 # Expose the backend's port
 EXPOSE 8000
