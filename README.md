@@ -75,3 +75,86 @@ As a logged-in user, I want to add an image to my post so I can make it more eng
 
 https://github.com/user-attachments/files/17809105/FanConnect_Wireframe.drawio.2.pdf
 
+
+
+# DATABASE COMMANDS
+
+## GENERATE MIGRATION: 
+
+```bash
+npx sequelize model:generate --name User --attributes username:string,email:string,hashedPassword:string
+```
+
+## Correct the migration file and do the migration (creates table in database)
+```bash
+npx dotenv sequelize db:migrate
+```
+
+## Command to undo the migration:
+
+```bash
+npx dotenv sequelize db:migrate:undo
+```
+## Generate a user seeder file
+
+```bash
+npx sequelize seed:generate --name demo-user
+```
+## After modifying it and adding other seeds run:
+
+```bash
+npx dotenv sequelize db:seed:all
+```
+## Command to undo the migration for the most recent seed file:
+```bash
+npx dotenv sequelize db:seed:undo
+```
+## Command to undo the migrations for all the seed files:
+```bash
+npx dotenv sequelize db:seed:undo:all
+```
+
+# The best way to update migrations and seeds in database after making some changes in files is to DELETE db file and run: 
+
+```bash
+npx dotenv sequelize db:migrate
+
+npx dotenv sequelize db:seed:all
+```
+
+
+# To set the `token` cookie back, just go to the `GET /api/set-token-cookie` route
+again: [http://localhost:8000/api/set-token-cookie].
+
+
+
+# GITHUB COMMANDS: 
+
+## merge the branch into the `dev` branch:
+```bash
+git checkout dev
+```
+
+```bash
+git pull origin dev
+```
+
+```bash
+git merge ""auth-setup""
+```
+
+```bash
+git push origin dev
+```
+
+## Delete branch:
+`git branch -d branch-name`
+
+## Create and switch to a new branch: 
+`git checkout -b branch-name`
+
+
+- Login: `POST /api/session`
+- Logout: `DELETE /api/session`
+- Signup: `POST /api/users`
+- Get session user: `GET /api/session`
