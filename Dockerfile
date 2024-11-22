@@ -4,19 +4,22 @@ FROM node:20.17.0
 # Set the working directory
 WORKDIR /app
 
-# Copy root-level package files
+# Copy the root-level package.json and package-lock.json
 COPY package*.json ./
 
-# Install root-level dependencies (if needed)
+# Install root-level dependencies (if any)
 RUN npm install --only=production
 
-# Copy the entire `backend` folder to the container
-COPY ./backend ./backend
+# Copy the `backend` folder into the container
+COPY ./backend /app/backend
 
 # Set the working directory to `backend`
 WORKDIR /app/backend
 
-# Install backend dependencies
+# Copy the backend-specific package.json and package-lock.json
+COPY ./backend/package*.json ./
+
+# Install backend-specific dependencies
 RUN npm install --only=production
 
 # Install SQLite tools (if needed for migrations)
