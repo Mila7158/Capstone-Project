@@ -1,41 +1,38 @@
 # Use Node.js as the base image
 FROM node:20.17.0
 
-# Set working directory inside the container
+# Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
+# Copy root package files
 COPY package*.json ./
 
-# Install all dependencies including devDependencies
-RUN npm install --include=dev || cat /root/.npm/_logs/*.log
-RUN npm install --include=dev --prefix backend || cat /root/.npm/_logs/*.log
-RUN cd backend && npm install
-RUN npm install --prefix backend && ls -la backend/node_modules
+# Install root dependencies (production only)
 RUN npm install --only=production
-# Ensure dotenv-cli is installed
-RUN npm install dotenv-cli
 
-# Copy the backend folder
+# Copy backend folder
 COPY ./backend ./backend
 
-# Copy the .env file for backend
-# COPY ./backend/.env ./backend/.env
+# Set working directory to backend
+WORKDIR /app/backend
 
-# Set environment variables for production
-ENV NODE_ENV=production
-ENV PORT=8000
+# Install backend dependencies
+RUN npm install
 
-# Install build tools for SQLite
+# Install SQLite tools
 RUN apt-get update && apt-get install -y sqlite3
 
-# Run the build command to prepare the application
+# Build the application, run migrations, and seed the database
 RUN npm run build && \
-    npx dotenv sequelize db:migrate --config backend/config/database.js || echo "Migration failed" && \
-    npx dotenv sequelize db:seed:all --config backend/config/database.js || echo "Seeding failed"
+    npx dotenv sequelize db:migrate --config config/database.js && \
+    npx dotenv sequelize db:seed:all --config config/database.js
+
+# Set environment variables
+ENV NODE_ENV=production
+ENV PORT=8000
 
 # Expose the backend's port
 EXPOSE 8000
 
-# Command to start the backend server
+# Start the backend server
 CMD ["npm", "start"]
