@@ -1,6 +1,9 @@
 # Use Node.js as the base image
 FROM node:20.17.0
 
+# Upgrade npm to the latest version
+RUN npm install -g npm@latest
+
 # Set the working directory for the container
 WORKDIR /app
 
