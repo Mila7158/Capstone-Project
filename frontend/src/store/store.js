@@ -1,9 +1,13 @@
 import { configureStore } from '@reduxjs/toolkit';
 import logger from 'redux-logger';
+import sessionReducer from './session';
+import { combineReducers } from 'redux';
+import postsReducer from './posts';
 
-const rootReducer = {
-  // ADD REDUCERS HERE
-};
+const rootReducer = combineReducers({
+    session: sessionReducer,
+    posts: postsReducer,
+});
 
 const store = configureStore({
   reducer: rootReducer,
@@ -13,5 +17,8 @@ const store = configureStore({
       : getDefaultMiddleware(),
   devTools: import.meta.env.MODE !== "production", // Enables Redux DevTools in development
 });
+
+
+
 
 export default store;

@@ -120,6 +120,11 @@ npx dotenv sequelize db:seed:undo:all
 npx dotenv sequelize db:migrate
 
 npx dotenv sequelize db:seed:all
+
+
+# To create new table: 
+
+npx sequelize model:generate --name Post --attributes authorId:integer,title:string,fan_post:string 
 ```
 
 

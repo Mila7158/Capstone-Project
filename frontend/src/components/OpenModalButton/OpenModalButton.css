@@ -1,0 +1,20 @@
+.open-modal-button {
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: bold;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #007acc;
+    color: white;
+    transition: background-color 0.3s ease;
+  }
+  
+  .open-modal-button:hover {
+    background-color: #005fa3;
+  }
+  
+  .open-modal-button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }

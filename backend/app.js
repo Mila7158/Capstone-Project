@@ -4,6 +4,7 @@ require('express-async-errors');
 const morgan = require('morgan');
 const cors = require('cors');
 const csurf = require('csurf');
+const path = require('path');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 const { ValidationError } = require('sequelize');
@@ -44,15 +45,30 @@ app.use(
   })
 );
 
+// Connect the posts router
+const postsRouter = require('./routes/api/posts'); // Import posts router
+app.use('/api/posts', postsRouter); // Use the posts router
+
 // Connect all the routes **AFTER** applying csurf
 app.use(routes);
 
+// Serve the frontend build files
+app.use(express.static(path.join(__dirname, '../frontend/dist')));
+
+// Serve index.html on any unknown routes (for SPA routing)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+});
+
+
+
+//* Catch unhandled requests and forward to error handler.
 app.use((_req, _res, next) => {
-    const err = new Error("The requested resource couldn't be found.");
-    err.title = "Resource Not Found";
-    err.errors = { message: "The requested resource couldn't be found." };
-    err.status = 404;
-    next(err);
+  const err = new Error("The requested resource couldn't be found.");
+  err.title = "Resource Not Found";
+  err.errors = { message: "The requested resource couldn't be found." };
+  err.status = 404;
+  next(err);
 });
 
 // Process sequelize errors
@@ -71,17 +87,27 @@ app.use((err, _req, _res, next) => {
 
 // Error formatter
 app.use((err, _req, res, _next) => {
-    res.status(err.status || 500);
-    console.error(err);
+  res.status(err.status || 500);
+  console.error(err);
+
+  if (!isProduction) {
+    // enable cors only in development
     res.json({
-      title: err.title || 'Server Error',
+      title: err.title || "Server Error",
       message: err.message,
       errors: err.errors,
-      stack: isProduction ? null : err.stack
+      stack: err.stack,
     });
+  } else {
+    res.json({
+      title: err.title || "Server Error",
+      message: err.message,
+      errors: err.errors,
+    });
+  }
 });
 
 
 
-// Export the app
+
 module.exports = app;
