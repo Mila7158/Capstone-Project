@@ -1,16 +1,16 @@
 # Use Node.js as the base image
 FROM node:20.17.0
 
-# Set the working directory
+# Set the working directory for the container
 WORKDIR /app
 
-# Copy the root-level package.json and package-lock.json
+# Copy the root-level package.json and package-lock.json files (if needed for root dependencies)
 COPY package*.json ./
 
-# Install root-level dependencies (if any)
+# Install root-level dependencies
 RUN npm install --only=production
 
-# Copy the `backend` folder into the container
+# Copy the backend folder into the container
 COPY ./backend /app/backend
 
 # Set the working directory to `backend`
@@ -18,9 +18,6 @@ WORKDIR /app/backend
 
 # Install backend-specific dependencies
 RUN npm install --only=production
-
-# Copy the backend-specific package.json and package-lock.json
-COPY ./backend/package*.json ./
 
 # Install SQLite tools (if needed for migrations)
 RUN apt-get update && apt-get install -y sqlite3
