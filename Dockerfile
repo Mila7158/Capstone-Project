@@ -17,7 +17,7 @@ RUN npm install dotenv-cli
 COPY ./backend ./backend
 
 # Copy the .env file for backend
-COPY ./backend/.env ./backend/.env
+# COPY ./backend/.env ./backend/.env
 
 # Set environment variables for production
 ENV NODE_ENV=production
