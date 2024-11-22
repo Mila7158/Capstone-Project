@@ -1,25 +1,25 @@
 # Use Node.js as the base image
 FROM node:20.17.0
 
-# Set working directory
+# Set the working directory
 WORKDIR /app
 
-# Copy root package files
+# Copy root-level package files
 COPY package*.json ./
 
-# Install root dependencies (production only)
+# Install root-level dependencies (if needed)
 RUN npm install --only=production
 
-# Copy backend folder
+# Copy the entire `backend` folder to the container
 COPY ./backend ./backend
 
-# Set working directory to backend
+# Set the working directory to `backend`
 WORKDIR /app/backend
 
 # Install backend dependencies
-RUN npm install
+RUN npm install --only=production
 
-# Install SQLite tools
+# Install SQLite tools (if needed for migrations)
 RUN apt-get update && apt-get install -y sqlite3
 
 # Build the application, run migrations, and seed the database
@@ -34,5 +34,5 @@ ENV PORT=8000
 # Expose the backend's port
 EXPOSE 8000
 
-# Start the backend server
+# Start the application
 CMD ["npm", "start"]
