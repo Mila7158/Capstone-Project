@@ -16,11 +16,11 @@ COPY ./backend /app/backend
 # Set the working directory to `backend`
 WORKDIR /app/backend
 
-# Copy the backend-specific package.json and package-lock.json
-COPY ./backend/package*.json ./
-
 # Install backend-specific dependencies
 RUN npm install --only=production
+
+# Copy the backend-specific package.json and package-lock.json
+COPY ./backend/package*.json ./
 
 # Install SQLite tools (if needed for migrations)
 RUN apt-get update && apt-get install -y sqlite3
