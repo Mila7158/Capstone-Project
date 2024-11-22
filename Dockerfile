@@ -10,6 +10,9 @@ COPY package*.json ./
 # Install all dependencies including devDependencies
 RUN npm install --include=dev || cat /root/.npm/_logs/*.log
 RUN npm install --include=dev --prefix backend || cat /root/.npm/_logs/*.log
+RUN cd backend && npm install
+RUN npm install --prefix backend && ls -la backend/node_modules
+RUN npm install --only=production
 # Ensure dotenv-cli is installed
 RUN npm install dotenv-cli
 
