@@ -161,7 +161,7 @@ router.get("/:postId", async (req, res) => {
   return res.status(200).json(response);
 });
 
-//* Edit a Post (CHECKED)
+//* Edit a Post 
 router.put("/:postId", requireAuth, validatePost, async (req, res) => {
   const userId = req.user.id; // GET authenticated userId
   const { postId } = req.params; // GET from URL
@@ -208,7 +208,7 @@ router.put("/:postId", requireAuth, validatePost, async (req, res) => {
   return res.status(200).json(post);
 });
 
-//* Create a Post (CHECKED)
+//* Create a Post 
 router.post(
   "/",
   validatePost, // Use validatePost middleware to handle validation
