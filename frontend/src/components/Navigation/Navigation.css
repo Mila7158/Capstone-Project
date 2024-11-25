@@ -1,6 +1,10 @@
 /* General Styling */
+/* @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap'); */
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&display=swap');
+
+
 .navigation-header {
-    background-color: rgb(87, 67, 67);
+    background-color: rgb(161, 167, 170);
     color: white;
     padding: 10px;
 }
@@ -24,10 +28,10 @@
 }
 
 .site-name {
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Oswald', sans-serif; /* Updated font */
     font-size: 24px;
     font-weight: bold;
-    color: #1e90ff;
+    color: #6A72A2;
     margin-left: 10px;
     letter-spacing: 2px;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
