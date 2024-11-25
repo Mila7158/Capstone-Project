@@ -1,7 +1,7 @@
 import { NavLink } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import ProfileButton from './ProfileButton';
-import { FaHome, FaUserCircle } from 'react-icons/fa';
+import { FaUserCircle } from 'react-icons/fa';
 import './Navigation.css';
 import { useState, useEffect, useRef } from 'react';
 import OpenModalButton from '../OpenModalButton/OpenModalButton';
