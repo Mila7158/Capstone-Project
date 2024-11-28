@@ -2,11 +2,11 @@ import { NavLink } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import ProfileButton from './ProfileButton';
 import { FaUserCircle } from 'react-icons/fa';
-import './Navigation.css';
 import { useState, useEffect, useRef } from 'react';
 import OpenModalButton from '../OpenModalButton/OpenModalButton';
 import LoginFormModal from '../LoginFormModal/LoginFormModal';
 import SignupFormModal from '../SignupFormModal/SignupFormModal';
+import './Navigation.css';
 
 function Navigation({ isLoaded }) {
   const sessionUser = useSelector((state) => state.session.user);
@@ -31,7 +31,7 @@ function Navigation({ isLoaded }) {
   }, [showMenu]);
 
   const handleOpenModal = () => {
-    setShowMenu(false); // Close the dropdown menu when opening a modal
+    setShowMenu(false); 
   };
 
   const sessionLinks = sessionUser ? (
@@ -42,12 +42,12 @@ function Navigation({ isLoaded }) {
             </NavLink>
         </li>
         <li>
-            <NavLink to="/current" className="nav-button">
+            <NavLink to="/posts" className="nav-button">
                 My Posts
             </NavLink>
         </li>  
         <li>
-            <NavLink to="/comments" className="nav-button">
+            <NavLink to="/comments/current" className="nav-button">
                 My Comments
             </NavLink>
         </li>

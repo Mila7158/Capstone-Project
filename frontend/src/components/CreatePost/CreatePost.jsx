@@ -10,7 +10,7 @@ function CreatePost() {
 
     const [formData, setFormData] = useState({
         title: "",
-        fan_post: "",       
+        fan_post: "",
     });
 
     const [errors, setErrors] = useState([]);
@@ -21,48 +21,34 @@ function CreatePost() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        let newErrors = [];
-        
-        if (formData.fan_post.length < 30) {
+        const newErrors = [];
+
+        // Validate fan_post length
+        if (formData.fan_post.trim().length < 30) {
             newErrors.push("Description needs a minimum of 30 characters");
         }
-        
-        if (!formData.title) newErrors.push("Title is required");
-       
-        
-        // const validImageRegex = /\.(png|jpg|jpeg)$/i;
-        // if (!formData.previewImageUrl || !validImageRegex.test(formData.previewImageUrl)) {
-        //     newErrors.push("Preview image is required and must end in .png, .jpg, or .jpeg");
-        // }
 
-        
+        // Validate title
+        if (!formData.title.trim()) {
+            newErrors.push("Title is required");
+        }
+
         if (newErrors.length > 0) {
             setErrors(newErrors);
             return;
         }
 
-        const postData = {            
+        const postData = {
             title: formData.title.trim(),
-            fan_post: formData.fan_post.trim(),           
+            fan_post: formData.fan_post.trim(),
         };
 
         try {
+            // Dispatch action to create a new post
             await dispatch(createNewPost(postData));
 
-            
-            // const imageData = [
-            //     { url: formData.previewImageUrl, preview: true },              
-            // ];
-
-            // for (const img of imageData) {
-            //     if (img.url && validImageRegex.test(img.url)) {
-            //         await dispatch(createPostImage({ postId: post.id, ...img }));
-            //     }
-            // }
-
-            navigate("/")
-
-            // console.log("Post and images created successfully");
+            // Redirect to homepage after successful creation
+            navigate("/");
         } catch (err) {
             console.error("Error creating post", err);
             setErrors(err.errors || [err.message]);
@@ -71,23 +57,16 @@ function CreatePost() {
 
     return (
         <div className="create-post-container">
-            <h1>Create a new Post</h1>
-            <form onSubmit={handleSubmit} className="create-post-form">    
-
-            <div className="section">
-                    <h2>Write Your Fan Post</h2>
-                    <p>Share your thoughts, memories, or anything exciting about the team!</p>
-                    <textarea
-                        name="fan_post"
-                        value={formData.fan_post}
-                        onChange={handleChange}
-                        placeholder="Please write at least 30 characters"
-                    ></textarea>
-                    {errors.includes("Fan post needs a minimum of 30 characters") && (
-                        <p className="error">Fan post needs a minimum of 30 characters</p>
-                    )}
-                </div>
-
+            <h1>Create a New Post</h1>
+            <form onSubmit={handleSubmit} className="create-post-form">
+                {errors.length > 0 && (
+                    <ul className="errors-list">
+                        {errors.map((error, idx) => (
+                            <li key={idx} className="error">{error}</li>
+                        ))}
+                    </ul>
+                )}
+              
                 <div className="section">
                     <h2>Add a Title</h2>
                     <p>Give your post a catchy title that grabs attention!</p>
@@ -98,7 +77,18 @@ function CreatePost() {
                         onChange={handleChange}
                         placeholder="Post Title"
                     />
-                    {errors.includes("Title is required") && <p className="error">Title is required</p>}
+                </div>
+
+                <div className="section">
+                    <h2>Write Your Fan Post</h2>
+                    <p>Share your thoughts, memories, or anything exciting about the team!</p>
+                    <textarea
+                        name="fan_post"
+                        value={formData.fan_post}
+                        onChange={handleChange}
+                        placeholder="Please write at least 30 characters"
+                        rows="6"
+                    ></textarea>
                 </div>
 
                 <button type="submit" className="create-post-button">Create Post</button>
