@@ -44,7 +44,7 @@ function ProfileButton({ user }) {
         <li>Hello, {user.username}</li>
         <li>{user.email}</li>
         <li><NavLink to="/posts">Manage Posts</NavLink></li>
-        <li><NavLink to="/reviews/current">Manage Comments</NavLink></li>
+        <li><NavLink to="/comments/current">Manage Comments</NavLink></li>
         <li><button onClick={logout}>Log Out</button></li>
       </ul>
     </div>

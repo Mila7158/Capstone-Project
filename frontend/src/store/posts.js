@@ -8,6 +8,9 @@ const CREATE_POST = "posts/createPost";
 const UPDATE_POST = "posts/updatePost";
 const DELETE_POST = "posts/deletePost";
 // const UPDATE_POST_IMAGES = "posts/updatePostImages";
+const CREATE_COMMENT = "comments/createComment";
+const LOAD_CURRENT_USER_POSTS = "posts/loadCurrentUserPosts";
+
 
 
 const loadPosts = (posts) => ({
@@ -35,6 +38,20 @@ const deletePost = (postId) => ({
     postId
 });
 
+const loadCurrentUserPosts = (posts) => ({
+    type: LOAD_CURRENT_USER_POSTS,
+    posts,
+});
+
+
+// const createComment = (postId, comment) => ({
+//     type: CREATE_COMMENT,
+//     postId,
+//     comment,
+// });
+
+
+
 export const fetchPosts = () => async (dispatch) => {
     const response = await csrfFetch('/api/posts/current');
     if (response.ok) {
@@ -61,6 +78,21 @@ export const fetchAllPosts = () => async (dispatch) => {
         console.error('Error:', err);
     }
 };
+
+export const fetchCurrentUserPosts = () => async (dispatch) => {
+    try {
+        const response = await csrfFetch('/api/posts/current');
+        if (response.ok) {
+            const data = await response.json();
+            dispatch(loadCurrentUserPosts(data.Posts));
+        } else {
+            console.error('Error fetching current user posts');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+};
+
 
 export const fetchPostById = (id) => async (dispatch) => {
     try {
@@ -135,6 +167,31 @@ export const updatePostById = (postId, postData) => async (dispatch) => {
     }
 };
 
+export const createNewComment = (postId, commentData) => async (dispatch) => {
+    try {
+        const response = await csrfFetch(`/api/posts/${postId}/comments`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(commentData),
+        });
+
+        if (response.ok) {
+            const newComment = await response.json();
+            dispatch(fetchPostById(postId));
+            return newComment;
+        } else {
+            const errorData = await response.json();
+            return errorData.errors;
+        }
+    } catch (err) {
+        console.error("Error creating comment:", err);
+        throw err;
+    }
+};
+
+
 
 const initialState = {
     currentUserPosts: {},
@@ -144,9 +201,9 @@ const initialState = {
 const postsReducer = (state = initialState, action) => {
     switch (action.type) {
         case LOAD_POSTS: {
-            const newState = { ...state, currentUserPosts: {} };
+            const newState = { ...state, allPosts: {} };
             action.posts.forEach(post => {
-                newState.currentUserPosts[post.id] = post;
+                newState.allPosts[post.id] = post;
             });
             return newState;
         }
@@ -154,6 +211,13 @@ const postsReducer = (state = initialState, action) => {
             const newState = { ...state, allPosts: {} };
             action.posts.forEach(post => {
                 newState.allPosts[post.id] = post;
+            });
+            return newState;
+        }
+        case LOAD_CURRENT_USER_POSTS: {
+            const newState = { ...state, currentUserPosts: {} };
+            action.posts.forEach((post) => {
+                newState.currentUserPosts[post.id] = post;
             });
             return newState;
         }
@@ -165,6 +229,7 @@ const postsReducer = (state = initialState, action) => {
             //     ...newState[postWithReviews.id],
             //     ...postWithReviews,
             // };
+            newState[action.post.id] = action.post;
             return { ...state, currentUserPosts: newState };
         }
         case CREATE_POST: {
@@ -184,6 +249,14 @@ const postsReducer = (state = initialState, action) => {
         //     }
         //     return { ...state, currentUserPosts: newState };
         // }
+        case CREATE_COMMENT: {
+            const newState = { ...state };
+            const post = newState.currentUserPosts[action.postId];
+            if (post) {
+                post.comments = [...post.comments, action.comment];
+            }
+            return newState;
+        }
         case UPDATE_POST: {
             const newState = { ...state.currentUserPosts };
             newState[action.post.id] = action.post;

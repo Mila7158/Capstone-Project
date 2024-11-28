@@ -8,6 +8,7 @@ import CreatePost from './components/CreatePost/CreatePost';
 import PostDetails from './components/PostDetails/PostDetails';
 import Posts from './components/Posts/Posts';
 import UpdatePost from './components/UpdatePost/UpdatePost';
+import ManageComments from './components/ManageComments/ManageComments.jsx';
 // import ManageReviews from './components/ManageReviews/ManageReviews';
 
 function Layout() {
@@ -53,10 +54,10 @@ const router = createBrowserRouter([
         path: '/posts/:id/edit',
         element: <UpdatePost/>
       },
-      // {
-      //   path: '/reviews/current',
-      //   element: <ManageReviews/>
-      // },
+      {
+        path: '/comments/current',
+        element: <ManageComments/>
+      },
     ]
   }
 ]);

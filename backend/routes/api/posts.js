@@ -1,13 +1,11 @@
 // backend/routes/api/posts.js
 const express = require("express");
-const { Post, User } = require("../../db/models");
+const { Post, User, Comment } = require("../../db/models");
 // const { PostImage } = require("../../db/models");
 const { check } = require("express-validator");
 const { handleValidationErrors } = require("../../utils/validation");
 const { requireAuth } = require("../../utils/auth");
-const { Op, fn, col } = require("sequelize");
-const { validationResult, query } = require("express-validator");
-const Sequelize = require("sequelize");
+const { fn, col } = require("sequelize");
 
 const router = express.Router();
 
@@ -73,20 +71,31 @@ router.get("/current", async (req, res) => {
     // Fetch posts owned by the current user
     const posts = await Post.findAll({
       where: { authorId: userId }, // Filter by the current user's ID
-      // include: [
-        // {
-        //   model: Review,
-        //   attributes: [], // Only need the stars for aggregation
-        //   required: false,
-        // },
+      include: [
+        {
+          model: Comment,
+          as: "Comments",
+          attributes: ["id", "comment"], // Only need the stars for aggregation
+          required: false,
+          include: [
+            {
+              model: User,
+              as: 'User',
+              attributes: ['id', 'username'],
+            }
+          ],
+          order: [["createdAt", "DESC"]],
+          required: false, // Allow posts without comments
+        },
         // {
         //   model: PostImage,
         //   where: { preview: true }, // Only fetch preview images
         //   attributes: ["url"], // Only get the URL of the image
         //   required: false, // Include Posts without preview images
         // },
-      // ],
-      // group: ["Post.id", "PostImages.id"], // Group by Post and PostImage
+      ],
+          order: [["createdAt", "DESC"]],
+          // group: ["Post.id", "PostImages.id"], // Group by Post and PostImage
       // attributes: {
       //   include: [[fn("AVG", col("Reviews.stars")), "avgStarRating"]], // Calculate avgRating
       // },
@@ -96,11 +105,16 @@ router.get("/current", async (req, res) => {
     const formattedPosts = posts.map((post) => {
       return {
         id: post.id,
-        authorId: post.authorId,        
+        authorId: post.authorId,
         title: post.title,
-        fan_post: post.fan_post,        
+        fan_post: post.fan_post,
         createdAt: post.createdAt,
-        updatedAt: posot.updatedAt,
+        updatedAt: post.updatedAt,
+        comments: post.Comments.map((comment) => ({
+          id: comment.id,
+          comment: comment.comment,
+          user: comment.User ? comment.User.username : null,
+        })),
         // previewImage: post.PostImages.length ? post.PostImages[0].url : null, // Get preview image URL
       };
     });
@@ -124,12 +138,25 @@ router.get("/:postId", async (req, res) => {
         as: "Author",
         attributes: ["id", "username"],
       },
+      {
+        model: Comment,
+        as: "Comments",
+        attributes: ["id", "comment", "createdAt"],
+        required: false,
+        include: [
+          {
+            model: User,
+            as: 'User',
+            attributes: ['id', 'username'],
+          }
+        ],
+        required: false, // Allow posts without comments
+      },
     ],
     // Group by required attributes
-    group: ["Post.id", "Author.id"], 
-    // attributes: {
+    // aattributes: {
     //   include: [
-    //     [fn("COUNT", col("Reviews.id")), "reviewCount"],
+    //     [fn("COUNT", col("Comment.id")), "commentsCount"], // Include a count of comments
     //   ],
     // },
   });
@@ -141,71 +168,118 @@ router.get("/:postId", async (req, res) => {
     });
   }
 
+  const commentsCount = await Comment.count({
+    where: { postId },
+});
+
+
   // Prepare response object
   const response = {
     id: post.id,
-    authorId: post.Author.id,    
+    authorId: post.Author.id,
     title: post.title,
-    fan_post: post.fan_post,    
+    fan_post: post.fan_post,
     createdAt: post.createdAt,
     updatedAt: post.updatedAt,
-    // numReviews: post.dataValues.reviewCount || 0, 
-    
+    comments: post.Comments.map((comment) => ({
+      id: comment.id,
+      comment: comment.comment,
+      user: comment.User ? comment.User : null,
+      createdAt: comment.createdAt
+    })),
+    commentsCount, 
+
     // PostImages: post.PostImages, // Directly include the PostImages
-    // Author: {
-    //   id: post.Author.id,
-    //   username: post.Author.username      
-    // },
+    User: {
+      id: post.Author.id,
+      username: post.Author.username      
+    },
   };
 
   return res.status(200).json(response);
 });
 
-//* Edit a Post 
+//* Edit a Post
 router.put("/:postId", requireAuth, validatePost, async (req, res) => {
-  const userId = req.user.id; // GET authenticated userId
-  const { postId } = req.params; // GET from URL
-  const { title, fan_post } =
-    req.body;
+  const userId = req.user.id; // Get authenticated user ID
+  const { postId } = req.params; // Get post ID from URL
+  const { title, fan_post } = req.body; // Get updated data from request body
 
-  const post = await Post.findByPk(postId); // Find post by ID;
+  try {
+    // Find the post by its ID
+    const post = await Post.findByPk(postId);
 
-  // Check if the post exists
-  if (!post) {
-    return res.status(404).json({
-      message: "Post couldn't be found",
+    // Check if the post exists
+    if (!post) {
+      return res.status(404).json({
+        message: "Post couldn't be found",
+      });
+    }
+
+    // Check if the authenticated user is the author of the post
+    if (post.authorId !== userId) {
+      return res.status(403).json({
+        message: "Forbidden",
+        errors: {
+          authorization: "Only the author can edit this post",
+        },
+      });
+    }
+
+    // Update the post with new values
+    post.title = title;
+    post.fan_post = fan_post;
+    await post.save(); // Save changes to the database
+
+    // Fetch the updated post with associations
+    const updatedPost = await Post.findByPk(postId, {
+      include: [
+        {
+          model: User,
+          as: "Author",
+          attributes: ["id", "username"],
+        },
+        {
+          model: Comment,
+          as: "Comments",
+          attributes: ["id", "comment", "createdAt"],
+          required: false,
+          include: [
+            {
+              model: User,
+              as: "User",
+              attributes: ["id", "username"],
+            },
+          ],
+        },
+      ],
     });
-  }
 
-  // Check if the authenticated user is the post's author
-  if (post.authorId !== userId) {
-    return res.status(403).json({
-      message: "Forbidden",
-      errors: {
-        authorization: "Only the author can edit this post",
+    // Respond with the updated post data, formatted like the GET /:postId endpoint
+    return res.status(200).json({
+      id: updatedPost.id,
+      authorId: updatedPost.Author.id,
+      title: updatedPost.title,
+      fan_post: updatedPost.fan_post,
+      createdAt: updatedPost.createdAt,
+      updatedAt: updatedPost.updatedAt,
+      comments: updatedPost.Comments.map((comment) => ({
+        id: comment.id,
+        comment: comment.comment,
+        user: comment.User ? comment.User : null,
+        createdAt: comment.createdAt,
+      })),
+      User: {
+        id: updatedPost.Author.id,
+        username: updatedPost.Author.username,
       },
     });
-  }
-
-  // After the post exists and user is authorized, we run validation
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    return res.status(400).json({
-      message: "Bad Request",
-      errors: errors.array().reduce((acc, error) => {
-        acc[error.param] = error.msg;
-        return acc;
-      }, {}),
+  } catch (err) {
+    console.error("Error updating post:", err);
+    return res.status(500).json({
+      message: "Internal Server Error",
     });
   }
-
-  //Update the post with new details
-  post.title = post.title,
-  post.fan_post = post.fan_post,  
-  await post.save(); // save the updated post
-
-  // response with updated post
-  return res.status(200).json(post);
 });
 
 //* Create a Post 
@@ -218,9 +292,9 @@ router.post(
       const userId = req.user.id;
 
       // Destructure the post data from the request body
-      const {        
+      const {
         title,
-        fan_post,        
+        fan_post,
       } = req.body;
       console.log(req.body)
 
@@ -228,15 +302,15 @@ router.post(
       const newPost = await Post.create({
         authorId: userId, // Set the author ID to the current user        
         title,
-        fan_post,        
+        fan_post,
       });
 
       // Return the newly created post
       return res.status(201).json({
         id: newPost.id,
-        authorId: newPost.authorId,        
+        authorId: newPost.authorId,
         title: newPost.title,
-        fan_post: newPost.fan_post,       
+        fan_post: newPost.fan_post,
         createdAt: newPost.createdAt,
         updatedAt: newPost.updatedAt,
       });
@@ -349,6 +423,20 @@ router.get("/", async (req, res) => {
           as: "Author", // Ensure the alias matches your association
           attributes: ["id", "username"], // Include only necessary author fields
         },
+        {
+          model: Comment,
+          as: "Comments",
+          attributes: ["id", "comment"], // Only need the stars for aggregation
+          required: false,
+          include: [
+            {
+              model: User,
+              as: 'User',
+              attributes: ['id', 'username'],
+            }
+          ],
+          required: false, // Allow posts without comments
+        },
       ],
       order: [["createdAt", "DESC"]], // Sort posts by most recent
     });
@@ -366,6 +454,11 @@ router.get("/", async (req, res) => {
         id: post.Author.id,
         username: post.Author.username,
       },
+      comments: post.Comments.map((comment) => ({
+        id: comment.id,
+        comment: comment.comment,
+        user: comment.User ? comment.User.username : null,
+      })),
     }));
 
     console.log("\n!!! Formatted Posts Response:\n", formattedPosts); // Log formatted posts
@@ -379,11 +472,9 @@ router.get("/", async (req, res) => {
 });
 
 
-
-
 //* DELETE a Post by ID (CHECKED)
 router.delete("/:postId", requireAuth, async (req, res) => {
-  const { postId } = req.params; 
+  const { postId } = req.params;
   const userId = req.user.id; // Get the current user's ID from authentication
 
   // Find the post by ID
@@ -414,7 +505,74 @@ router.delete("/:postId", requireAuth, async (req, res) => {
   });
 });
 
+//* Create a Comment for a Post based on the Post's id (CHECKED)
+router.post("/:postId/comments", requireAuth, async (req, res) => {
+  try {
+    const { comment, stars } = req.body;
+    const postId = req.params.postId;  // Correct postId from URL parameter
+    const userId = req.user.id; // Assuming `req.user.id` is the logged-in user ID
 
+    // Validate comment input
+    const errors = {};
+    if (!comment || typeof comment !== "string" || comment.trim() === "") {
+      errors.comment = "Comment text is required";
+    }
+    if (stars !== undefined && (isNaN(stars) || stars < 1 || stars > 5)) {
+      errors.stars = "Stars must be an integer from 1 to 5";
+    }
+
+    if (Object.keys(errors).length > 0) {
+      return res.status(400).json({
+        message: "Bad Request",
+        errors,
+      });
+    }
+
+    // Check if the post exists
+    const post = await Post.findByPk(postId);
+    if (!post) {
+      return res.status(404).json({
+        message: "Post couldn't be found",
+      });
+    }
+
+    // Check if the user has already commented on this post
+    const existingComment = await Comment.findOne({
+      where: { postId, userId },
+    });
+    console.log(existingComment)
+    console.log(userId)
+
+    if (existingComment) {
+      return res
+        .status(500)
+        .json({ message: "User already has a comment for this post" });
+    }
+
+    const newComment = await Comment.create({
+      userId,      
+      postId,      
+      comment,    
+      stars,      
+    });
+
+    // Return the newly created comment
+    return res.status(201).json({
+      id: newComment.id,
+      userId: newComment.userId,
+      postId: newComment.postId,
+      comment: newComment.comment,
+      stars: newComment.stars,
+      createdAt: newComment.createdAt,
+      updatedAt: newComment.updatedAt,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: "Server Error",
+      error: error.message,
+    });
+  }
+});
 
 
 module.exports = router;

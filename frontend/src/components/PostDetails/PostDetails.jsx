@@ -1,41 +1,245 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
-import { fetchPostById } from '../../store/posts'; // Update with the correct Redux action path
+import { useNavigate, useParams } from 'react-router-dom';
+import { fetchPostById, updatePostById, deletePostById, createNewComment } from '../../store/posts';
+import { deleteComment, updateComment } from '../../store/comments';
+import ConfirmDeleteModal from '../ConfirmDeleteModal/ConfirmDeleteModal';
 import './PostDetails.css';
 
 function PostDetails() {
-    const { id } = useParams();  
+    const { id } = useParams();
     const dispatch = useDispatch();
-    
-    const post = useSelector((state) => state?.posts?.currentPost);
-    
+    const navigate = useNavigate();
+
+    const post = useSelector((state) => state?.posts?.currentUserPosts[id]);
+    const currentUser = useSelector((state) => state?.session?.user);
+
+    const [isEditing, setIsEditing] = useState(false);
+    const [editTitle, setEditTitle] = useState('');
+    const [editContent, setEditContent] = useState('');
+    const [newComment, setNewComment] = useState('');
+    const [commentErrors, setCommentErrors] = useState([]);
+    const [editingCommentId, setEditingCommentId] = useState(null);
+    const [editedComment, setEditedComment] = useState('');
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [commentToDelete, setCommentToDelete] = useState(null);
+
     useEffect(() => {
-        dispatch(fetchPostById(id)); // Fetch the post details by ID
+        dispatch(fetchPostById(id));
     }, [dispatch, id]);
 
     if (!post) return <p>Loading...</p>;
 
+    const isPostOwner = currentUser?.id === post.User?.id;
+    const hasAlreadyCommented = post?.comments?.some(
+        (comment) => comment?.user?.id === currentUser?.id
+    );
+
+    const showAddCommentButton = currentUser && !isPostOwner && !hasAlreadyCommented;
+
+    const handleEditClick = () => {
+        setIsEditing(true);
+        setEditTitle(post.title);
+        setEditContent(post.fan_post);
+    };
+
+    const handleSaveEdit = async () => {
+        const updatedPost = {
+            title: editTitle,
+            fan_post: editContent,
+        };
+        await dispatch(updatePostById(post.id, updatedPost));
+        setIsEditing(false);
+    };
+
+    const handleCancelEdit = () => {
+        setIsEditing(false);
+    };
+
+    const handleDeletePost = async () => {
+        const confirmed = window.confirm('Are you sure you want to delete this post?');
+        if (confirmed) {
+            await dispatch(deletePostById(post.id));
+            navigate('/');
+        }
+    };
+
+    const handleAddComment = async (e) => {
+        e.preventDefault();
+
+        const errors = [];
+        if (newComment.trim().length < 5) {
+            errors.push('Comment must be at least 5 characters long.');
+        }
+
+        if (errors.length > 0) {
+            setCommentErrors(errors);
+            return;
+        }
+
+        try {
+            const commentData = { comment: newComment.trim() };
+            await dispatch(createNewComment(post.id, commentData));
+            setNewComment('');
+            setCommentErrors([]);
+        } catch (err) {
+            setCommentErrors(err.errors || ['An error occurred while adding the comment.']);
+        }
+    };
+
+    const handleEditComment = async (e) => {
+        e.preventDefault();
+        if (editedComment.trim().length < 5) {
+            alert('Comment must be at least 5 characters long.');
+            return;
+        }
+        try {
+            const commentData = { id: editingCommentId, comment: editedComment.trim() };
+            await dispatch(updateComment(commentData, id));
+            setEditingCommentId(null);
+            setEditedComment('');
+        } catch (err) {
+            alert('An error occurred while editing the comment.');
+        }
+    };
+
+    const openDeleteModal = (commentId) => {
+        setCommentToDelete(commentId);
+        setIsModalOpen(true);
+    };
+
+    const handleDeleteComment = async () => {
+        if (commentToDelete) {
+            await dispatch(deleteComment(commentToDelete, id));
+            setIsModalOpen(false);
+            setCommentToDelete(null);
+        }
+    };
+
+    const closeDeleteModal = () => {
+        setIsModalOpen(false);
+        setCommentToDelete(null);
+    };
+
     return (
         <div className="post-details-container">
-            <h1 className="post-title">{post.title}</h1>
-            <p className="post-author">Posted by {post.User?.username}</p>
-            <div className="post-content">
-                <p>{post.fan_post}</p>
-            </div>
+            {isEditing ? (
+                <div className="edit-post-form">
+                    <h2>Edit Post</h2>
+                    <label>
+                        Title:
+                        <input
+                            type="text"
+                            value={editTitle}
+                            onChange={(e) => setEditTitle(e.target.value)}
+                        />
+                    </label>
+                    <label>
+                        Content:
+                        <textarea
+                            value={editContent}
+                            onChange={(e) => setEditContent(e.target.value)}
+                        />
+                    </label>
+                    <button onClick={handleSaveEdit} className="save-button">Save</button>
+                    <button onClick={handleCancelEdit} className="cancel-button">Cancel</button>
+                </div>
+            ) : (
+                <>
+                    <h1 className="post-title">{post?.title}</h1>
+                    <p className="post-author">Posted by {post?.User?.username}</p>
+                    <div className="post-content">
+                        <p>{post.fan_post}</p>
+                        {isPostOwner && (
+                            <div className="post-actions">
+                                <button onClick={handleEditClick} className="edit-button">Edit Post</button>
+                                <button onClick={handleDeletePost} className="delete-button">Delete Post</button>
+                            </div>
+                        )}
+                    </div>
+                </>
+            )}
+
             <div className="post-comments">
                 <h2>Comments</h2>
-                {post.Comments && post.Comments.length > 0 ? (
-                    post.Comments.map((comment) => (
-                        <div key={comment.id} className="comment">
-                            <p className="comment-author">{comment.User?.username}:</p>
-                            <p className="comment-content">{comment.comment}</p>
-                        </div>
-                    ))
+                {post.comments && post.comments.length > 0 ? (
+                    post.comments.map((comment) => {
+                        const isCommentOwner = currentUser?.id === comment.user?.id;
+
+                        return (
+                            <div key={comment.id} className="comment">
+                                {editingCommentId === comment.id ? (
+                                    <form onSubmit={handleEditComment}>
+                                        <textarea
+                                            value={editedComment}
+                                            onChange={(e) => setEditedComment(e.target.value)}
+                                            rows="3"
+                                        ></textarea>
+                                        <button type="submit">Save</button>
+                                        <button onClick={() => setEditingCommentId(null)}>Cancel</button>
+                                    </form>
+                                ) : (
+                                    <>
+                                        <p className="comment-content">{comment?.comment}</p>
+                                        <p className="comment-author">- {comment?.user?.username}</p>
+                                    </>
+                                )}
+                                {isCommentOwner && (
+                                    <div className="comment-actions">
+                                        <button
+                                            className="edit-button"
+                                            onClick={() => {
+                                                setEditingCommentId(comment.id);
+                                                setEditedComment(comment.comment);
+                                            }}
+                                        >
+                                            Edit Comment
+                                        </button>
+                                        <button
+                                            className="delete-button"
+                                            onClick={() => openDeleteModal(comment.id)}
+                                        >
+                                            Delete Comment
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })
                 ) : (
                     <p>No comments yet. Be the first to comment!</p>
                 )}
+
+                {showAddCommentButton && (
+                    <div className="add-comment">
+                        <h3>Add a Comment</h3>
+                        {commentErrors.length > 0 && (
+                            <ul className="error-list">
+                                {commentErrors.map((error, idx) => (
+                                    <li key={idx} className="error">{error}</li>
+                                ))}
+                            </ul>
+                        )}
+                        <form onSubmit={handleAddComment}>
+                            <textarea
+                                value={newComment}
+                                onChange={(e) => setNewComment(e.target.value)}
+                                placeholder="Write your comment..."
+                                rows="4"
+                            ></textarea>
+                            <button type="submit" className="add-comment-button">Submit Comment</button>
+                        </form>
+                    </div>
+                )}
             </div>
+
+            {isModalOpen && (
+                <ConfirmDeleteModal
+                    onClose={closeDeleteModal}
+                    onConfirm={handleDeleteComment}
+                    modalValue="comment"
+                />
+            )}
         </div>
     );
 }

@@ -1,15 +1,13 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import { fetchPostById, updatePostById } from "../../store/posts"; 
-import '../CreatePost/CreatePost.css'; 
+import { fetchPostById, updatePostById } from "../../store/posts";
 
 function UpdatePost() {
     const { id } = useParams();
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const post = useSelector((state) => state.posts?.currentPost); 
-
+    const post = useSelector((state) => state.posts?.currentUserPosts[id]);
     const [formData, setFormData] = useState({
         title: "",
         fan_post: "",
@@ -36,12 +34,9 @@ function UpdatePost() {
         e.preventDefault();
         const newErrors = [];
 
-        if (!formData.title.trim()) {
-            newErrors.push("Title is required");
-        }
-
+        if (!formData.title.trim()) newErrors.push("Title is required.");
         if (formData.fan_post.trim().length < 30) {
-            newErrors.push("Fan post needs a minimum of 30 characters");
+            newErrors.push("Fan post must be at least 30 characters long.");
         }
 
         if (newErrors.length > 0) {
@@ -55,9 +50,9 @@ function UpdatePost() {
         };
 
         try {
-            await dispatch(updatePostById(id, postData)); // Dispatch the update action
-            alert("Post updated successfully");
-            navigate(`/posts/${id}`); // Navigate to the post details page
+            await dispatch(updatePostById(id, postData));
+            alert("Post updated successfully!");
+            navigate(`/posts/${id}`); // Navigate to the updated post's details page
         } catch (err) {
             setErrors(err.errors || [err.message]);
         }
@@ -65,36 +60,39 @@ function UpdatePost() {
 
     return (
         <div className="create-post-container">
-            <h1>Update your Post</h1>
-            <form onSubmit={handleSubmit} className="create-post-form">
+            <h1>Update Your Post</h1>
+            <form onSubmit={handleSubmit} className="update-post-form">
+                {errors.length > 0 && (
+                    <ul className="error-list">
+                        {errors.map((error, idx) => (
+                            <li key={idx} className="error">{error}</li>
+                        ))}
+                    </ul>
+                )}
+
                 <div className="section">
-                    <h2>Update the Title</h2>
+                    <label>Title</label>
                     <input
                         type="text"
                         name="title"
                         value={formData.title}
                         onChange={handleChange}
-                        placeholder="Enter a new title"
+                        placeholder="Enter the post title"
                     />
-                    {errors.includes("Title is required") && (
-                        <p className="error">Title is required</p>
-                    )}
                 </div>
 
                 <div className="section">
-                    <h2>Update the Fan Post</h2>
+                    <label>Fan Post</label>
                     <textarea
                         name="fan_post"
                         value={formData.fan_post}
                         onChange={handleChange}
-                        placeholder="Please write at least 30 characters"
+                        placeholder="Write your post content (at least 30 characters)"
+                        rows="6"
                     ></textarea>
-                    {errors.includes("Fan post needs a minimum of 30 characters") && (
-                        <p className="error">Fan post needs a minimum of 30 characters</p>
-                    )}
                 </div>
 
-                <button type="submit" className="create-post-button">Update Post</button>
+                <button type="submit" className="update-post-button">Update Post</button>
             </form>
         </div>
     );
