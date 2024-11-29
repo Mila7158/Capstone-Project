@@ -9,6 +9,7 @@ import PostDetails from './components/PostDetails/PostDetails';
 import Posts from './components/Posts/Posts';
 import UpdatePost from './components/UpdatePost/UpdatePost';
 import ManageComments from './components/ManageComments/ManageComments.jsx';
+import Footer from './components/Footer/Footer.jsx';
 // import ManageReviews from './components/ManageReviews/ManageReviews';
 
 function Layout() {
@@ -26,6 +27,7 @@ function Layout() {
     <>
       <Navigation isLoaded={isLoaded} />
       {isLoaded && <Outlet />}
+      <Footer/>
     </>
   );
 }

@@ -1,11 +1,11 @@
-.manage-reviews {
+.manage-comments {
     padding: 20px;
 }
 
-.manage-reviews h3 {
+.manage-comments h3 {
     margin-bottom: 10px;
 }
 
-.review-tile {
+.comment-tile {
     margin-bottom: 20px;
 }

@@ -5,7 +5,6 @@ if (process.env.NODE_ENV === 'production') {
   options.schema = process.env.SCHEMA;
 }
 
-/** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable('Comments', {
@@ -51,14 +50,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    options.tableName = "Comments";
-
-    // Remove the foreign key constraint on postId
-    await queryInterface.removeConstraint(options.tableName, 'Comments_postId_fkey');
-    
-    // Remove the foreign key constraint on userId
-    await queryInterface.removeConstraint(options.tableName, 'Comments_userId_fkey');
-
-    await queryInterface.dropTable(options);
+    await queryInterface.dropTable('Comments', options);
   }
 };

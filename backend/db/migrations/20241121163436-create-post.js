@@ -41,15 +41,14 @@ module.exports = {
         allowNull: false,
         type: Sequelize.DATE,
         defaultValue: Sequelize.literal("CURRENT_TIMESTAMP"),
-      },
+      }
     }, options);
   },
   async down(queryInterface, Sequelize) {
-
     // First, drop the dependent Comments table
     options.tableName = "Comments";
     await queryInterface.dropTable(options);
-    
+
     options.tableName = "Posts";
     await queryInterface.dropTable(options);
   },

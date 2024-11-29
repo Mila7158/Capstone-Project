@@ -1,0 +1,19 @@
+.manage-posts h2{
+    margin-bottom: 20px;
+}
+
+.create-post-button.btn-primary {
+    margin-bottom: 40px;
+    display: block;
+    width: fit-content;
+}
+
+.manage-post-buttons .btn-secondary{
+    margin-right: 10px;
+}
+
+.post-tile .btn-secondary {
+    display: block;
+    width: fit-content;
+    margin-left: auto;
+}
