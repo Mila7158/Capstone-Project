@@ -52,6 +52,10 @@ module.exports = {
 
   async down(queryInterface, Sequelize) {
     options.tableName = "Comments";
+
+    // Drop the foreign key constraint on `postId`
+    await queryInterface.removeConstraint(options, 'Comments_postId_fkey', options);
+
     await queryInterface.dropTable(options);
   }
 };
