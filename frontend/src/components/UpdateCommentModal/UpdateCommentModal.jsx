@@ -40,7 +40,7 @@ const UpdateCommentModal = ({ comment, onClose, refreshComments }) => {
                         />
                         <button
                             type="submit"
-                            className={commentText.trim().length < 5 ? 'disabled-button' : 'enabled-button'}
+                            className={commentText.trim().length < 5 ? 'disabled-button' : 'enabled-button btn-primary'}
                             disabled={commentText.trim().length < 5}
                         >
                             Submit Update

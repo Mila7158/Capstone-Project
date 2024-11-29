@@ -5,11 +5,18 @@ const LOAD_COMMENTS = "comments/loadComments";
 const DELETE_COMMENT = "comments/deleteComment";
 const UPDATE_COMMENT = "comments/updateComment";
 
+
 // Action Creators
 const loadComments = (comments) => ({
     type: LOAD_COMMENTS,
     comments,
 });
+
+const removeComment = (commentId) => ({
+    type: DELETE_COMMENT,
+    commentId,
+});
+
 
 // Thunks
 export const fetchComments = () => async (dispatch) => {
@@ -17,6 +24,7 @@ export const fetchComments = () => async (dispatch) => {
         const response = await csrfFetch('/api/comments/current');
         if (response.ok) {
             const comments = await response.json();
+            console.log(comments)
             dispatch(loadComments(comments));
         } else {
             console.error('Error fetching comments for the current user');
@@ -64,7 +72,7 @@ export const deleteComment = (commentId, postId = null) => async (dispatch) => {
             if (postId) {
                 dispatch(fetchPostById(postId));
             } else {
-                dispatch(loadComments());
+                dispatch(removeComment(commentId));
             }
         } else {
             console.error('Error updating comment');
@@ -90,9 +98,9 @@ const commentsReducer = (state = initialState, action) => {
             return newState;
         }
         case DELETE_COMMENT: {
-            const newState = { ...state.commentsByPost };
-            delete newState[action.commentId];
-            return { commentsByPost: newState };
+            const newState = { ...state, commentsByPost: { ...state.commentsByPost } };
+            delete newState.commentsByPost[action.commentId];
+            return newState;
         }
         case UPDATE_COMMENT: {
             const newState = { ...state.commentsByPost };

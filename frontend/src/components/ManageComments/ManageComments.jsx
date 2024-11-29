@@ -3,20 +3,24 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchComments, deleteComment } from '../../store/comments';
 import UpdateCommentModal from '../UpdateCommentModal/UpdateCommentModal';
 import './ManageComments.css';
+import ConfirmDeleteModal from '../ConfirmDeleteModal/ConfirmDeleteModal';
 
 const ManageComments = () => {
     const dispatch = useDispatch();
     const comments = useSelector((state) => Object.values(state.comments.commentsByPost));
     const [selectedComment, setSelectedComment] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
+    const [commentToDelete, setCommentToDelete] = useState(null);
     console.log(comments)
 
     useEffect(() => {
-        dispatch(fetchComments()); 
+        dispatch(fetchComments());
     }, [dispatch]);
 
-    const handleDelete = (commentId) => {
-        dispatch(deleteComment(commentId));
+    const handleDelete = () => {
+        setIsCommentModalOpen(false);
+        dispatch(deleteComment(commentToDelete));
     };
 
     const handleUpdateClick = (comment) => {
@@ -28,21 +32,32 @@ const ManageComments = () => {
         dispatch(fetchComments());
     };
 
+    const openDeleteModal = (commentId) => {
+        setCommentToDelete(commentId);
+        setIsCommentModalOpen(true);
+    };
+
     return (
-        <div className="manage-comments">
+        <div className="manage-comments main-container">
             <h2>Manage Your Comments</h2>
             <div className="comments-container">
                 {comments.length > 0 ? (
                     comments.map((comment) => (
-                        <div key={comment.id} className="comment-tile">
+                        <div key={comment.id} className="comment-tile  post-tile">
                             <h3>Post: {comment.Post?.title}</h3>
                             <p className="comment-date">
                                 {new Date(comment.createdAt).toLocaleString('default', { month: 'long' })} {new Date(comment.createdAt).getFullYear()}
                             </p>
                             <p>{comment.comment}</p>
                             <div className="comment-actions">
-                                <button onClick={() => handleUpdateClick(comment)}>Update</button>
-                                <button onClick={() => handleDelete(comment.id)}>Delete</button>
+                                <button className="btn-secondary" onClick={() => handleUpdateClick(comment)}>Update</button>
+                                <button
+                                    className="btn-danger"
+                                    onClick={() => openDeleteModal(comment.id)}
+                                >
+                                    Delete Comment
+                                </button>
+                                {/* <button className="btn-danger" onClick={() => handleDelete(comment.id)}>Delete</button> */}
                             </div>
                         </div>
                     ))
@@ -55,6 +70,14 @@ const ManageComments = () => {
                     comment={selectedComment}
                     onClose={() => setIsModalOpen(false)}
                     refreshComments={refreshComments}
+                />
+            )}
+
+             {isCommentModalOpen && (
+                <ConfirmDeleteModal
+                    onClose={() => setIsCommentModalOpen(false)}
+                    onConfirm={handleDelete}
+                    modalValue="comment"
                 />
             )}
         </div>

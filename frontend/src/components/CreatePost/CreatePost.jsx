@@ -56,7 +56,7 @@ function CreatePost() {
     };
 
     return (
-        <div className="create-post-container">
+        <div className="main-container">
             <h1>Create a New Post</h1>
             <form onSubmit={handleSubmit} className="create-post-form">
                 {errors.length > 0 && (
@@ -91,7 +91,7 @@ function CreatePost() {
                     ></textarea>
                 </div>
 
-                <button type="submit" className="create-post-button">Create Post</button>
+                <button type="submit" className="btn-primary">Create Post</button>
             </form>
         </div>
     );

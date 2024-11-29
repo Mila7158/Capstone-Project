@@ -22,6 +22,7 @@ function PostDetails() {
     const [editingCommentId, setEditingCommentId] = useState(null);
     const [editedComment, setEditedComment] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isPostModalOpen, setIsPostModalOpen] = useState(false);
     const [commentToDelete, setCommentToDelete] = useState(null);
 
     useEffect(() => {
@@ -56,12 +57,14 @@ function PostDetails() {
         setIsEditing(false);
     };
 
+    const openDeletePostModal = () => {
+        setIsPostModalOpen(true);
+    };
+
     const handleDeletePost = async () => {
-        const confirmed = window.confirm('Are you sure you want to delete this post?');
-        if (confirmed) {
-            await dispatch(deletePostById(post.id));
-            navigate('/');
-        }
+        await dispatch(deletePostById(post.id));
+        setIsPostModalOpen(false);
+        navigate('/');
     };
 
     const handleAddComment = async (e) => {
@@ -122,7 +125,7 @@ function PostDetails() {
     };
 
     return (
-        <div className="post-details-container">
+        <div className="post-details-container main-container">
             {isEditing ? (
                 <div className="edit-post-form">
                     <h2>Edit Post</h2>
@@ -141,8 +144,8 @@ function PostDetails() {
                             onChange={(e) => setEditContent(e.target.value)}
                         />
                     </label>
-                    <button onClick={handleSaveEdit} className="save-button">Save</button>
-                    <button onClick={handleCancelEdit} className="cancel-button">Cancel</button>
+                    <button onClick={handleSaveEdit} className="btn-primary">Save</button>
+                    <button onClick={handleCancelEdit} className="btn-secondary">Cancel</button>
                 </div>
             ) : (
                 <>
@@ -152,8 +155,8 @@ function PostDetails() {
                         <p>{post.fan_post}</p>
                         {isPostOwner && (
                             <div className="post-actions">
-                                <button onClick={handleEditClick} className="edit-button">Edit Post</button>
-                                <button onClick={handleDeletePost} className="delete-button">Delete Post</button>
+                                <button onClick={handleEditClick} className="btn-secondary">Edit Post</button>
+                                <button onClick={openDeletePostModal} className="btn-danger">Delete Post</button>
                             </div>
                         )}
                     </div>
@@ -175,8 +178,8 @@ function PostDetails() {
                                             onChange={(e) => setEditedComment(e.target.value)}
                                             rows="3"
                                         ></textarea>
-                                        <button type="submit">Save</button>
-                                        <button onClick={() => setEditingCommentId(null)}>Cancel</button>
+                                        <button className='btn-primary' type="submit">Save</button>
+                                        <button className='btn-secondary' onClick={() => setEditingCommentId(null)}>Cancel</button>
                                     </form>
                                 ) : (
                                     <>
@@ -187,7 +190,7 @@ function PostDetails() {
                                 {isCommentOwner && (
                                     <div className="comment-actions">
                                         <button
-                                            className="edit-button"
+                                            className="btn-primary"
                                             onClick={() => {
                                                 setEditingCommentId(comment.id);
                                                 setEditedComment(comment.comment);
@@ -196,7 +199,7 @@ function PostDetails() {
                                             Edit Comment
                                         </button>
                                         <button
-                                            className="delete-button"
+                                            className="btn-danger"
                                             onClick={() => openDeleteModal(comment.id)}
                                         >
                                             Delete Comment
@@ -227,7 +230,7 @@ function PostDetails() {
                                 placeholder="Write your comment..."
                                 rows="4"
                             ></textarea>
-                            <button type="submit" className="add-comment-button">Submit Comment</button>
+                            <button type="submit" className="btn-primary">Submit Comment</button>
                         </form>
                     </div>
                 )}
@@ -238,6 +241,14 @@ function PostDetails() {
                     onClose={closeDeleteModal}
                     onConfirm={handleDeleteComment}
                     modalValue="comment"
+                />
+            )}
+
+            {isPostModalOpen && (
+                <ConfirmDeleteModal
+                    onClose={() => setIsPostModalOpen(false)}
+                    onConfirm={handleDeletePost}
+                    modalValue="post"
                 />
             )}
         </div>
