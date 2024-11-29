@@ -45,6 +45,11 @@ module.exports = {
     }, options);
   },
   async down(queryInterface, Sequelize) {
+
+    // First, drop the dependent Comments table
+    options.tableName = "Comments";
+    await queryInterface.dropTable(options);
+    
     options.tableName = "Posts";
     await queryInterface.dropTable(options);
   },
