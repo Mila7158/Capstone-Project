@@ -1,0 +1,17 @@
+footer {
+    text-align: center;
+    background-color: #E8ECEF;
+    color: #333333; 
+    /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); */
+    padding: 5px;
+}
+
+footer p {
+    font-size: 15px;
+}
+
+@media screen and (max-width: 768px) {
+    footer {
+        padding: 5px;
+    }
+}

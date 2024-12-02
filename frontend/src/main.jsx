@@ -8,7 +8,8 @@ import { restoreCSRF, csrfFetch } from './store/csrf';
 import * as sessionActions from './store/session';
 // import { restoreUser } from './store/session';
 import Modal from './components/Modal/Modal'; 
-import { ModalProvider } from './context/ModalContext'; 
+import { ModalProvider } from './context/ModalContext';
+import "./index.css" 
 
 // store.dispatch(restoreUser());
 

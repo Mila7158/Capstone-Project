@@ -1,1 +1,117 @@
-/* TODO: Add sitewide styles */
+/* Existing styles in index.css */
+
+/* General body styling */
+body {
+    background-color: #F8F9FA; 
+    font-family: 'Oswald', sans-serif;
+    margin: 0;
+    padding: 0;
+    height: 100%; /* Ensure the body takes the full height of the viewport */
+}
+
+/* App-wide Layout */
+html, body {
+    height: 100%; /* Ensure the full height of the viewport is covered */
+}
+
+.layout-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Minimum height of the viewport */
+}
+
+.content-container {
+    flex: 1; /* Makes the content area grow to fill available space */
+    padding: 20px;
+}
+
+footer {
+    background-color: #f1f1f1;
+    text-align: center;
+    padding: 20px;
+    border-top: 1px solid #ccc;
+}
+
+/* Typography */
+h1, h2, h3, h4, h5, h6 {
+    color: #333333;
+    margin-bottom: 10px;
+    font-weight: bold;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+p {
+    color: #555555; 
+    line-height: 1.6;
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+a {
+    text-decoration: none;
+}
+
+/* Button styles */
+.btn-primary {
+    background-color: #FFB703;
+    color: #333;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out;
+}
+
+.btn-primary:hover {
+    background-color: #FFD166; 
+}
+
+.btn-danger {
+    background-color: #E63946;
+    color: #FFFFFF;
+    border: none;
+    padding: 10px 15px;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out, transform 0.2s;
+}
+
+.btn-danger:hover {
+    background-color: #FF4A57;
+}
+
+.btn-secondary {
+    background-color: #6C757D; 
+    color: #FFFFFF;
+    border: none;
+    padding: 10px 15px;
+    font-size: 14px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease-in-out, transform 0.2s;
+}
+
+.btn-secondary:hover {
+    background-color: #ADB5BD;
+    color: #333333; 
+}
+
+/* Main content container styling */
+.main-container {
+    width: 60%;
+    margin: 40px auto 0;
+    padding: 20px;
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 576px) {
+    .main-container {
+        width: 80%;
+    }
+}

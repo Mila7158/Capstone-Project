@@ -31,6 +31,11 @@
     background-color: #fff;
     border-radius: 8px;
     border: 1px solid #ddd;
+
+    word-wrap: break-word;        
+    overflow-wrap: break-word;    
+    white-space: normal;          
+    max-width: 100%;   
 }
 
 .post-comments {
@@ -43,12 +48,25 @@
     margin-bottom: 20px;
 }
 
+.post-actions .btn-secondary {
+    margin-right: 10px;
+}
+
+.comment-actions {
+    display: flex;
+    gap: 10px;
+}
+
 .comment {
     margin-bottom: 15px;
     padding: 10px;
     background-color: #fff;
     border-radius: 8px;
     border: 1px solid #ddd;
+}
+
+.comment form {
+    margin-bottom: 20px;
 }
 
 .comment-author {
@@ -61,4 +79,12 @@
 .comment-content {
     font-size: 14px;
     color: #666;
+
+    word-wrap: break-word;       
+    overflow-wrap: break-word;   
+    white-space: normal;
+}
+
+.comment form .btn-primary, .edit-post-form .btn-primary {
+    margin-right: 10px;
 }

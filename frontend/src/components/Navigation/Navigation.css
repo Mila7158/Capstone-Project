@@ -1,8 +1,18 @@
 /* General Styling */
-.navigation-header {
-    background-color: rgb(87, 67, 67);
-    color: white;
-    padding: 10px;
+/* @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap'); */
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600&display=swap');
+
+
+header {
+    background-color: #E8ECEF;
+    color: #333333; 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 40px 20px;
+}
+
+.container {
+    max-width: 80%;
+    margin: 0 auto;
 }
 
 .navigation {
@@ -12,77 +22,55 @@
     padding: 0 20px;
 }
 
+.navigation-left {
+    display: flex;
+    gap: 50px;
+}
+
 .logo-container {
     display: flex;
     align-items: center;
 }
 
 .logo {
-    width: 10%; /* Makes the logo 10% of its original size */
-    height: auto; /* Maintains aspect ratio */
-    max-width: 100px; /* Optional: Limit the maximum size */
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
 }
 
 .site-name {
-    font-family: 'Roboto', sans-serif;
+    font-family: 'Oswald', sans-serif;
     font-size: 24px;
     font-weight: bold;
-    color: #1e90ff;
-    margin-left: 10px;
     letter-spacing: 2px;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
     transition: color 0.3s ease;
+    color: #00509E;
 }
 
 .site-name:hover {
-    color: #104e8b;
-    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.4);
+    opacity: 0.8;
 }
 
 /* Navigation Buttons */
-.nav-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    color: white;
-    text-decoration: none;
-    background-color: transparent;
-    border: 1px solid white;
-    border-radius: 50%;
-    padding: 10px;
-    width: 40px;
-    height: 40px;
-    transition: background-color 0.3s, box-shadow 0.3s;
-}
-
-.nav-icon:hover {
-    background-color: white;
-    color: black;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
-}
-
 .nav-buttons {
     display: flex;
-    gap: 10px;
+    align-items: center;
+    gap: 15px;
 }
 
 .nav-button {
-    padding: 10px 20px;
+    color: #104E8B; /* Deep Sky Blue */
     background-color: transparent;
-    color: white;
-    border: 1px solid white;
-    border-radius: 25px;
     text-decoration: none;
-    text-align: center;
-    font-size: 16px;
-    transition: background-color 0.3s, box-shadow 0.3s;
+    border: 1px solid #104E8B;
+    border-radius: 25px;
+    padding: 8px 15px;
+    transition: background-color 0.3s, color 0.3s;
 }
 
-.nav-button:hover {
-    background-color: white;
-    color: black;
-    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+.nav-button:hover, .nav-link:hover {
+    background-color: #FFD166; /* Soft Yellow Hover */
+    color: #FFFFFF; /* White Text on Hover */
 }
 
 /* Dropdown Menu */
@@ -93,19 +81,17 @@
 .dropdown-toggle {
     background: none;
     border: none;
-    color: white;
+    color: #333;
     cursor: pointer;
-    display: flex;
-    align-items: center;
     font-size: 24px;
+    transition: color 0.3s ease-in-out;
 }
 
 .menu-dropdown {
     position: absolute;
-    right: 0;
-    top: 40px;
+    right: 10px;
+    top: 20px;
     background-color: white;
-    border: 1px solid #ddd;
     list-style: none;
     padding: 10px;
     display: flex;
@@ -115,20 +101,39 @@
 }
 
 .menu-dropdown button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    border-radius: 25px;
-    cursor: pointer;
-    transition: background-color 0.3s;
+    min-width: 100px;
 }
 
-.menu-dropdown button:hover {
-    background-color: #0056b3;
+.greeting-message {
+    font-size: 16px;
+    color: #333;
+    margin-right: 10px; /* Space between greeting and the user icon */
+    font-weight: bold;
+    align-self: center; /* Align vertically to match the icon */
 }
 
-.menu-dropdown button:focus {
-    outline: 2px solid #007bff;
-    outline-offset: 2px;
+@media screen and (max-width: 790px) {
+
+    .container {
+        max-width: 100%;
+    }
+
+    .navigation {
+        align-items: start;
+        padding: 0;
+    }
+
+    .navigation-left {
+        flex-wrap: wrap;
+    }
+
+    .nav-buttons {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .nav-button {
+        display: block;
+        text-align: center;
+    }
 }

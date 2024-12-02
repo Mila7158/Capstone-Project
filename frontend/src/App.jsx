@@ -8,6 +8,8 @@ import CreatePost from './components/CreatePost/CreatePost';
 import PostDetails from './components/PostDetails/PostDetails';
 import Posts from './components/Posts/Posts';
 import UpdatePost from './components/UpdatePost/UpdatePost';
+import ManageComments from './components/ManageComments/ManageComments.jsx';
+import Footer from './components/Footer/Footer.jsx';
 // import ManageReviews from './components/ManageReviews/ManageReviews';
 
 function Layout() {
@@ -22,11 +24,22 @@ function Layout() {
   
 
   return (
-    <>
+    <div className="layout-container">
       <Navigation isLoaded={isLoaded} />
-      {isLoaded && <Outlet />}
-    </>
+      <main className="content-container">
+        {isLoaded && <Outlet />}
+      </main>
+      <Footer />
+    </div>
   );
+
+  // return (
+  //   <>
+  //     <Navigation isLoaded={isLoaded} />
+  //     {isLoaded && <Outlet />}
+  //     <Footer/>
+  //   </>
+  // );
 }
 
 const router = createBrowserRouter([
@@ -53,10 +66,10 @@ const router = createBrowserRouter([
         path: '/posts/:id/edit',
         element: <UpdatePost/>
       },
-      // {
-      //   path: '/reviews/current',
-      //   element: <ManageReviews/>
-      // },
+      {
+        path: '/comments/current',
+        element: <ManageComments/>
+      },
     ]
   }
 ]);

@@ -1,3 +1,4 @@
+/* Modal Container */
 .login-modal {
     background-color: white;
     padding: 20px;
@@ -8,6 +9,7 @@
     font-family: Arial, sans-serif;
 }
 
+/* Modal Title */
 .login-modal h1 {
     text-align: center;
     color: #333;
@@ -15,19 +17,21 @@
     margin-bottom: 20px;
 }
 
+/* Form Styles */
 .login-modal form {
     display: flex;
     flex-direction: column;
     gap: 15px;
 }
 
+/* Labels for Inputs */
 .login-modal label {
     font-weight: bold;
     color: #444;
-    margin-bottom: 5px;
     font-size: 14px;
 }
 
+/* Input Fields */
 .login-modal input {
     padding: 10px;
     margin-top: 5px;
@@ -39,11 +43,13 @@
     transition: border-color 0.3s ease;
 }
 
+/* Focus State for Input Fields */
 .login-modal input:focus {
     border-color: #007acc;
     outline: none;
 }
 
+/* Button Styles */
 .login-modal button {
     padding: 10px;
     font-size: 16px;
@@ -54,32 +60,38 @@
     transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
+/* Disabled Button Style */
 .login-modal .disabled-button {
-    background-color: #f0f0f0;
+    background-color: #f0f0f0; /* Light gray color for disabled button */
     color: gray;
-    cursor: not-allowed;
+    cursor: not-allowed;       /* Not-allowed cursor to indicate it's inactive */
+    border: 1px solid #ccc;    /* Subtle border to indicate button boundaries */
 }
 
+/* Enabled Button Style */
 .login-modal .enabled-button {
-    background-color: #ff5a5f;
+    background-color: #ff5a5f; /* Airbnb Red for the active button */
     color: white;
     border: 1px solid #ff5a5f;
 }
 
+/* Hover Effect for Enabled Button */
 .login-modal .enabled-button:hover {
     background-color: darkred;
     transform: translateY(-1px);
 }
 
+/* Error Message Styling */
 .login-modal p.error-message {
-    color: #ff5a5f;
+    color: #ff5a5f;            /* Same color as enabled button to indicate error */
     font-size: 12px;
-    margin-top: -10px;
+    margin-top: -10px;         /* Bring the error message closer to the input field */
     margin-bottom: 10px;
 }
 
+/* Demo Login Button Styling */
 .login-modal .demo-login-button {
-    background-color: transparent;
+    background-color: transparent; /* Transparent background for link style */
     color: blue;
     border: none;
     text-align: center;
@@ -89,13 +101,22 @@
     transition: color 0.3s ease;
 }
 
+/* Hover Effect for Demo Login Button */
 .login-modal .demo-login-button:hover {
     color: darkblue;
 }
 
+/* Login Button Container */
 .login-buttons {
     display: flex;
     flex-direction: column;
     gap: 10px;
     margin-top: 15px;
+}
+
+/* Add any box-sizing and reset styles for consistency */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
 }

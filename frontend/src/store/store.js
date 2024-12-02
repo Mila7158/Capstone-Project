@@ -3,10 +3,12 @@ import logger from 'redux-logger';
 import sessionReducer from './session';
 import { combineReducers } from 'redux';
 import postsReducer from './posts';
+import commentsReducer from './comments';
 
 const rootReducer = combineReducers({
     session: sessionReducer,
     posts: postsReducer,
+    comments: commentsReducer
 });
 
 const store = configureStore({

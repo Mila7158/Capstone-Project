@@ -45,9 +45,9 @@ app.use(
   })
 );
 
-// Connect the posts router
-const postsRouter = require('./routes/api/posts'); // Import posts router
-app.use('/api/posts', postsRouter); // Use the posts router
+// // Connect the posts router
+// const postsRouter = require('./routes/api/posts'); // Import posts router
+// app.use('/api/posts', postsRouter); // Use the posts router
 
 // Connect all the routes **AFTER** applying csurf
 app.use(routes);
