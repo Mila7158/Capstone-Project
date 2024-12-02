@@ -24,7 +24,7 @@ export const fetchComments = () => async (dispatch) => {
         const response = await csrfFetch('/api/comments/current');
         if (response.ok) {
             const comments = await response.json();
-            console.log(comments)
+         
             dispatch(loadComments(comments));
         } else {
             console.error('Error fetching comments for the current user');

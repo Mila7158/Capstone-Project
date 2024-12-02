@@ -14,7 +14,6 @@ function LoginFormModal() {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        console.log("Log In button clicked with:", { credential, password });
         
         setErrors({});
         return dispatch(sessionActions.login({ credential, password }))

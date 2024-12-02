@@ -68,7 +68,7 @@ export const fetchAllPosts = () => async (dispatch) => {
         if (response.ok) {
             const data = await response.json();
 
-            console.log("\n!!!API Response:\n", data); // Log API response
+  
 
             dispatch(loadAllPosts(data.Posts));
         } else {
