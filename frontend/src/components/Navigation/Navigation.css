@@ -104,6 +104,14 @@ header {
     min-width: 100px;
 }
 
+.greeting-message {
+    font-size: 16px;
+    color: #333;
+    margin-right: 10px; /* Space between greeting and the user icon */
+    font-weight: bold;
+    align-self: center; /* Align vertically to match the icon */
+}
+
 @media screen and (max-width: 790px) {
 
     .container {

@@ -48,11 +48,12 @@ function Navigation() {
               </NavLink>
 
               <div className="nav-buttons">
-                <NavLink to="/posts/new" className="nav-button">
-                  Post
-                </NavLink>
+
                 {sessionUser && (
                   <>
+                    <NavLink to="/posts/new" className="nav-button">
+                      Post
+                    </NavLink>
                     <NavLink to="/posts" className="nav-button">
                       My Posts
                     </NavLink>
@@ -65,6 +66,11 @@ function Navigation() {
             </div>
 
             <div className="dropdown" ref={menuRef}>
+              {sessionUser && (
+                <span className="greeting-message">
+                  Hello, {sessionUser.username}
+                </span>
+              )}
               <button className="dropdown-toggle" onClick={toggleMenu}>
                 <FaUserCircle />
               </button>

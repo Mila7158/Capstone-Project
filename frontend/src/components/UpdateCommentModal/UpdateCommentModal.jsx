@@ -8,10 +8,28 @@ const UpdateCommentModal = ({ comment, onClose, refreshComments }) => {
     const [commentText, setCommentText] = useState(comment.comment);
     const [error, setError] = useState(null);
 
+    const validateComment = (text) => {
+        if (text.trim().length < 5) {
+            return 'Comment must be at least 5 characters long.';
+        } else if (text.trim().length > 300) {
+            return 'Comment cannot exceed 300 characters.';
+        }
+        return null;
+    };
+
+    const handleInputChange = (e) => {
+        const text = e.target.value;
+        setCommentText(text);
+        setError(validateComment(text)); // Update error state dynamically
+    };
+
+
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (commentText.trim().length < 5) {
-            setError('Comment must be at least 5 characters long.');
+        
+        const errorMessage = validateComment(commentText);
+        if (errorMessage) {
+            setError(errorMessage);
             return;
         }
 
@@ -36,12 +54,16 @@ const UpdateCommentModal = ({ comment, onClose, refreshComments }) => {
                         <textarea
                             placeholder="Update your comment here..."
                             value={commentText}
-                            onChange={(e) => setCommentText(e.target.value)}
+                            onChange={handleInputChange} // Validate while typing
                         />
                         <button
                             type="submit"
-                            className={commentText.trim().length < 5 ? 'disabled-button' : 'enabled-button btn-primary'}
-                            disabled={commentText.trim().length < 5}
+                            className={
+                                commentText.trim().length < 5 || commentText.trim().length > 300
+                                    ? 'disabled-button'
+                                    : 'enabled-button btn-primary'
+                            }
+                            disabled={commentText.trim().length < 5 || commentText.trim().length > 300}
                         >
                             Submit Update
                         </button>

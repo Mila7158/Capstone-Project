@@ -14,16 +14,21 @@ function PostDetails() {
     const post = useSelector((state) => state?.posts?.currentUserPosts[id]);
     const currentUser = useSelector((state) => state?.session?.user);
 
+
     const [isEditing, setIsEditing] = useState(false);
     const [editTitle, setEditTitle] = useState('');
     const [editContent, setEditContent] = useState('');
     const [newComment, setNewComment] = useState('');
-    const [commentErrors, setCommentErrors] = useState([]);
+    const [commentErrors, setCommentErrors] = useState('');
     const [editingCommentId, setEditingCommentId] = useState(null);
     const [editedComment, setEditedComment] = useState('');
+    const [editedCommentErrors, setEditedCommentErrors] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isPostModalOpen, setIsPostModalOpen] = useState(false);
     const [commentToDelete, setCommentToDelete] = useState(null);
+
+    const MAX_COMMENT_LENGTH = 300;
+    const MIN_COMMENT_LENGTH = 5;
 
     useEffect(() => {
         dispatch(fetchPostById(id));
@@ -67,42 +72,55 @@ function PostDetails() {
         navigate('/');
     };
 
+    const validateComment = (comment) => {
+        if (comment.trim().length < MIN_COMMENT_LENGTH) {
+            return `Comment must be at least ${MIN_COMMENT_LENGTH} characters long.`;
+        } else if (comment.trim().length > MAX_COMMENT_LENGTH) {
+            return `Comment cannot exceed ${MAX_COMMENT_LENGTH} characters.`;
+        }
+        return '';
+    };
+
+    const handleAddCommentChange = (e) => {
+        const value = e.target.value;
+        setNewComment(value);
+        setCommentErrors(validateComment(value));
+    };
+
     const handleAddComment = async (e) => {
         e.preventDefault();
 
-        const errors = [];
-        if (newComment.trim().length < 5) {
-            errors.push('Comment must be at least 5 characters long.');
-        }
-
-        if (errors.length > 0) {
-            setCommentErrors(errors);
-            return;
-        }
+        if (commentErrors) return;
 
         try {
             const commentData = { comment: newComment.trim() };
             await dispatch(createNewComment(post.id, commentData));
             setNewComment('');
-            setCommentErrors([]);
+            setCommentErrors('');
         } catch (err) {
-            setCommentErrors(err.errors || ['An error occurred while adding the comment.']);
+            setCommentErrors(err.errors || 'An error occurred while adding the comment.');
         }
+    };
+
+    const handleEditCommentChange = (e) => {
+        const value = e.target.value;
+        setEditedComment(value);
+        setEditedCommentErrors(validateComment(value));
     };
 
     const handleEditComment = async (e) => {
         e.preventDefault();
-        if (editedComment.trim().length < 5) {
-            alert('Comment must be at least 5 characters long.');
-            return;
-        }
+
+        if (editedCommentErrors) return;
+
         try {
             const commentData = { id: editingCommentId, comment: editedComment.trim() };
             await dispatch(updateComment(commentData, id));
             setEditingCommentId(null);
             setEditedComment('');
+            setEditedCommentErrors('');
         } catch (err) {
-            alert('An error occurred while editing the comment.');
+            setEditedCommentErrors('An error occurred while editing the comment.');
         }
     };
 
@@ -119,10 +137,11 @@ function PostDetails() {
         }
     };
 
-    const closeDeleteModal = () => {
-        setIsModalOpen(false);
-        setCommentToDelete(null);
-    };
+    // const closeDeleteModal = () => {
+    //     setIsModalOpen(false);
+    //     setCommentToDelete(null);
+    // };
+
 
     return (
         <div className="post-details-container main-container">
@@ -161,8 +180,8 @@ function PostDetails() {
                         )}
                     </div>
                 </>
-            )}
-
+            )}            
+            
             <div className="post-comments">
                 <h2>Comments</h2>
                 {post.comments && post.comments.length > 0 ? (
@@ -172,39 +191,57 @@ function PostDetails() {
                         return (
                             <div key={comment.id} className="comment">
                                 {editingCommentId === comment.id ? (
+                                    // Editing Mode: Show Save and Cancel Buttons
                                     <form onSubmit={handleEditComment}>
                                         <textarea
                                             value={editedComment}
-                                            onChange={(e) => setEditedComment(e.target.value)}
-                                            rows="3"
+                                            onChange={handleEditCommentChange}
+                                            rows="3"                                            
                                         ></textarea>
-                                        <button className='btn-primary' type="submit">Save</button>
-                                        <button className='btn-secondary' onClick={() => setEditingCommentId(null)}>Cancel</button>
+                                        {editedCommentErrors && (
+                                            <p className="error">{editedCommentErrors}</p>
+                                        )}
+                                        <button
+                                            type="submit"
+                                            className={editedCommentErrors ? 'disabled-button' : 'enabled-button btn-primary'}
+                                            disabled={!!editedCommentErrors}
+                                        >
+                                            Save
+                                        </button>
+                                        <button
+                                            className='btn-secondary'
+                                            type="button"
+                                            onClick={() => setEditingCommentId(null)}
+                                        >
+                                            Cancel
+                                        </button>
                                     </form>
                                 ) : (
+                                    // View Mode: Show Comment Content
                                     <>
                                         <p className="comment-content">{comment?.comment}</p>
                                         <p className="comment-author">- {comment?.user?.username}</p>
+                                        {isCommentOwner && (
+                                            <div className="comment-actions">
+                                                <button
+                                                    className="btn-primary"
+                                                    onClick={() => {
+                                                        setEditingCommentId(comment.id);
+                                                        setEditedComment(comment.comment);
+                                                        setEditedCommentErrors('');
+                                                    }}
+                                                >
+                                                    Edit Comment
+                                                </button>
+                                                <button
+                                                    className="btn-danger"
+                                                    onClick={() => openDeleteModal(comment.id)}
+                                                >
+                                                    Delete Comment
+                                                </button>
+                                            </div>
+                                        )}
                                     </>
-                                )}
-                                {isCommentOwner && (
-                                    <div className="comment-actions">
-                                        <button
-                                            className="btn-primary"
-                                            onClick={() => {
-                                                setEditingCommentId(comment.id);
-                                                setEditedComment(comment.comment);
-                                            }}
-                                        >
-                                            Edit Comment
-                                        </button>
-                                        <button
-                                            className="btn-danger"
-                                            onClick={() => openDeleteModal(comment.id)}
-                                        >
-                                            Delete Comment
-                                        </button>
-                                    </div>
                                 )}
                             </div>
                         );
@@ -216,21 +253,21 @@ function PostDetails() {
                 {showAddCommentButton && (
                     <div className="add-comment">
                         <h3>Add a Comment</h3>
-                        {commentErrors.length > 0 && (
-                            <ul className="error-list">
-                                {commentErrors.map((error, idx) => (
-                                    <li key={idx} className="error">{error}</li>
-                                ))}
-                            </ul>
-                        )}
+                        {commentErrors && <p className="error">{commentErrors}</p>}
                         <form onSubmit={handleAddComment}>
                             <textarea
                                 value={newComment}
-                                onChange={(e) => setNewComment(e.target.value)}
+                                onChange={handleAddCommentChange}
                                 placeholder="Write your comment..."
-                                rows="4"
+                                rows="4"                                
                             ></textarea>
-                            <button type="submit" className="btn-primary">Submit Comment</button>
+                            <button
+                                type="submit"
+                                className={commentErrors ? 'disabled-button' : 'enabled-button btn-primary'}
+                                disabled={!!commentErrors}
+                            >
+                                Submit Comment
+                            </button>
                         </form>
                     </div>
                 )}
@@ -238,12 +275,11 @@ function PostDetails() {
 
             {isModalOpen && (
                 <ConfirmDeleteModal
-                    onClose={closeDeleteModal}
+                    onClose={() => setIsModalOpen(false)}
                     onConfirm={handleDeleteComment}
                     modalValue="comment"
                 />
             )}
-
             {isPostModalOpen && (
                 <ConfirmDeleteModal
                     onClose={() => setIsPostModalOpen(false)}

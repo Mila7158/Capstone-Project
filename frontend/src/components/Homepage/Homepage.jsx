@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllPosts } from "../../store/posts"; // Ensure the correct path to your Redux action
 import './Homepage.css';
-import { Link, NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const Homepage = () => {
     const dispatch = useDispatch();
@@ -16,17 +16,15 @@ const Homepage = () => {
     return (
         <div className="homepage">
             <div className="posts-container">
-                {posts.map((post) => (
+                {posts.slice().reverse().map((post) => (
                     <div key={post.id} className="post-tile">
                         {/* Post Title */}
-                        <NavLink to={`/posts/${post.id}`}>
-                            <div className="post-title">
-                                <h3>{post.title}</h3>
-                            </div>
-                        </NavLink>
-
+                        <div className="post-title">
+                            <h3>{post.title}</h3>
+                        </div>
+    
                         {/* Post Preview */}
-                        <div className="post-details">
+                        <div className="post-preview-container">
                             <p className="fan-post-preview">
                                 {post.fan_post.length > 100
                                     ? `${post.fan_post.slice(0, 100)}...`
@@ -34,11 +32,17 @@ const Homepage = () => {
                             </p>
                         </div>
 
+                        {/* Read More Button Container */}
+                        <div className="read-more-container">
+                            <Link className="btn-secondary read-more-btn" to={`/posts/${post.id}`}>
+                                Read More
+                            </Link>
+                        </div>
+    
                         {/* Author and Date Metadata */}
                         <div className="post-metadata">
                             <p>By {post.author?.username || "Unknown"}</p>
                             <p>Created on {new Date(post.createdAt).toLocaleDateString()}</p>
-                            <Link className='btn-secondary' to={`/posts/${post.id}`}>Read more</Link>
                         </div>
                     </div>
                 ))}
@@ -46,5 +50,6 @@ const Homepage = () => {
         </div>
     );
 };
+
 
 export default Homepage;

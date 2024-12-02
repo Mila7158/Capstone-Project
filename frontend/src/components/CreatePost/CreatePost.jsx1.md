@@ -65,13 +65,12 @@ function CreatePost() {
         });
     };
 
-  
+    // Update button state based on formData and errors
     useEffect(() => {
         const hasErrors = Object.keys(errors).length > 0;
         const isEmpty = !formData.title.trim() || !formData.fan_post.trim();
         setIsButtonDisabled(hasErrors || isEmpty);
     }, [errors, formData]);
-
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -123,11 +122,11 @@ function CreatePost() {
                 <button
                     type="submit"
                     className={
-                        errors.title || errors.fan_post
+                        isButtonDisabled
                             ? "disabled-button"
                             : "enabled-button btn-primary"
                     }
-                    disabled={errors.title || errors.fan_post}
+                    disabled={isButtonDisabled}
                 >
                     Create Post
                 </button>
@@ -135,6 +134,5 @@ function CreatePost() {
         </div>
     );
 }
-
 
 export default CreatePost;

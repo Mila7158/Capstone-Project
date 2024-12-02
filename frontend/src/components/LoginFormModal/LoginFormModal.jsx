@@ -10,8 +10,6 @@ function LoginFormModal() {
     const [password, setPassword] = useState('');
     const [errors, setErrors] = useState({});
     const { closeModal } = useModal();
-    const [isTyping, setIsTyping] = useState(false); 
-
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -41,15 +39,8 @@ function LoginFormModal() {
             });
     };
 
+    // Button is disabled until credential length is >= 4 and password length is >= 6
     const isButtonDisabled = credential.length < 4 || password.length < 6;
-
-    const handleFocus = () => {
-        setIsTyping(true);
-    };
-
-    const handleBlur = () => {
-        setIsTyping(false);
-    };
 
     return (
         <div className="login-modal">
@@ -62,8 +53,6 @@ function LoginFormModal() {
                         value={credential}
                         data-testid="credential-input"
                         onChange={(e) => setCredential(e.target.value)}
-                        onFocus={handleFocus} 
-                        onBlur={handleBlur}   
                         required
                     />
                 </label>
@@ -74,33 +63,33 @@ function LoginFormModal() {
                         value={password}
                         data-testid="password-input"
                         onChange={(e) => setPassword(e.target.value)}
-                        onFocus={handleFocus}  
-                        onBlur={handleBlur} 
                         required
                     />
                 </label>
+                
+                {/* Display any errors */}
                 {errors.credential && <p className="error-message">{errors.credential}</p>}
 
-                {!isTyping && (  
-                    <div className="login-buttons">
-                        <button
-                            type="submit"
-                            disabled={isButtonDisabled}
-                            className={isButtonDisabled ? 'disabled-button' : 'enabled-button'}
-                        >
-                            Log In
-                        </button>
+                <div className="login-buttons">
+                    {/* Log In Button */}
+                    <button
+                        type="submit"
+                        disabled={isButtonDisabled}
+                        className={isButtonDisabled ? 'disabled-button' : 'enabled-button'}
+                    >
+                        Log In
+                    </button>
 
-                        <button
-                            type="button"
-                            onClick={handleDemoLogin}
-                            className="demo-login-button"
-                            data-testid="login-button"
-                        >
-                            Log in as Demo User
-                        </button>
-                    </div>
-                )}
+                    {/* Demo User Login Button */}
+                    <button
+                        type="button"
+                        onClick={handleDemoLogin}
+                        className="demo-login-button"
+                        data-testid="login-button"
+                    >
+                        Log in as Demo User
+                    </button>
+                </div>
             </form>
         </div>
     );

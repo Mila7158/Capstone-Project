@@ -31,6 +31,11 @@
     background-color: #fff;
     border-radius: 8px;
     border: 1px solid #ddd;
+
+    word-wrap: break-word;        
+    overflow-wrap: break-word;    
+    white-space: normal;          
+    max-width: 100%;   
 }
 
 .post-comments {
@@ -74,6 +79,10 @@
 .comment-content {
     font-size: 14px;
     color: #666;
+
+    word-wrap: break-word;       
+    overflow-wrap: break-word;   
+    white-space: normal;
 }
 
 .comment form .btn-primary, .edit-post-form .btn-primary {

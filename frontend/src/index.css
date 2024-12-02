@@ -1,11 +1,38 @@
-/* TODO: Add sitewide styles */
+/* Existing styles in index.css */
+
+/* General body styling */
 body {
     background-color: #F8F9FA; 
     font-family: 'Oswald', sans-serif;
     margin: 0;
     padding: 0;
+    height: 100%; /* Ensure the body takes the full height of the viewport */
 }
 
+/* App-wide Layout */
+html, body {
+    height: 100%; /* Ensure the full height of the viewport is covered */
+}
+
+.layout-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh; /* Minimum height of the viewport */
+}
+
+.content-container {
+    flex: 1; /* Makes the content area grow to fill available space */
+    padding: 20px;
+}
+
+footer {
+    background-color: #f1f1f1;
+    text-align: center;
+    padding: 20px;
+    border-top: 1px solid #ccc;
+}
+
+/* Typography */
 h1, h2, h3, h4, h5, h6 {
     color: #333333;
     margin-bottom: 10px;
@@ -24,6 +51,7 @@ a {
     text-decoration: none;
 }
 
+/* Button styles */
 .btn-primary {
     background-color: #FFB703;
     color: #333;
@@ -70,6 +98,7 @@ a {
     color: #333333; 
 }
 
+/* Main content container styling */
 .main-container {
     width: 60%;
     margin: 40px auto 0;
@@ -80,6 +109,7 @@ a {
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
+/* Responsive adjustments */
 @media screen and (max-width: 576px) {
     .main-container {
         width: 80%;

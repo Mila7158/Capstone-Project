@@ -39,7 +39,7 @@ const ManageComments = () => {
 
     return (
         <div className="manage-comments main-container">
-            <h2>Manage Your Comments</h2>
+            {/* <h2>Manage Your Comments</h2> */}
             <div className="comments-container">
                 {comments.length > 0 ? (
                     comments.map((comment) => (
@@ -48,7 +48,7 @@ const ManageComments = () => {
                             <p className="comment-date">
                                 {new Date(comment.createdAt).toLocaleString('default', { month: 'long' })} {new Date(comment.createdAt).getFullYear()}
                             </p>
-                            <p>{comment.comment}</p>
+                            <p className="comment-text">{comment.comment}</p>
                             <div className="comment-actions">
                                 <button className="btn-secondary" onClick={() => handleUpdateClick(comment)}>Update</button>
                                 <button

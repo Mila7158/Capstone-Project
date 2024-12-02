@@ -1,48 +1,139 @@
-import { useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchCurrentUserPosts } from '../../store/posts';
-import { Link, NavLink } from 'react-router-dom';
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { fetchCurrentUserPosts, updatePostById, deletePostById } from '../../store/posts';
 import './Posts.css';
+// import { Link } from "react-router-dom";
+import ConfirmDeleteModal from "../ConfirmDeleteModal/ConfirmDeleteModal";
 
 const Posts = () => {
     const dispatch = useDispatch();
-    const posts = useSelector((state) => Object.values(state.posts.currentUserPosts));
-
+    const posts = useSelector(state => Object.values(state.posts.currentUserPosts));
+    const [isPostModalOpen, setIsPostModalOpen] = useState(false);
+    const [postToDelete, setPostToDelete] = useState(null);
+    const [editingPostId, setEditingPostId] = useState(null);
+    const [editTitle, setEditTitle] = useState('');
+    const [editContent, setEditContent] = useState('');
 
     useEffect(() => {
-        dispatch(fetchCurrentUserPosts());
+        dispatch(fetchCurrentUserPosts());  
     }, [dispatch]);
 
+    const openDeletePostModal = (postId) => {
+        setPostToDelete(postId);
+        setIsPostModalOpen(true);
+    };
 
+    const handleDeletePost = async () => {
+        if (postToDelete) {
+            await dispatch(deletePostById(postToDelete));
+            setIsPostModalOpen(false);
+            setPostToDelete(null);
+        }
+    };
+
+    const closeDeleteModal = () => {
+        setIsPostModalOpen(false);
+        setPostToDelete(null);
+    };
+
+    const handleEditClick = (post) => {
+        setEditingPostId(post.id);
+        setEditTitle(post.title);
+        setEditContent(post.fan_post);
+    };
+
+    const handleSaveEdit = async () => {
+        if (editingPostId) {
+            const updatedPost = {
+                title: editTitle,
+                fan_post: editContent,
+            };
+            await dispatch(updatePostById(editingPostId, updatedPost));
+            setEditingPostId(null);
+            setEditTitle('');
+            setEditContent('');
+        }
+    };
+
+    const handleCancelEdit = () => {
+        setEditingPostId(null);
+        setEditTitle('');
+        setEditContent('');
+    };
 
     return (
-        <div className='manage-posts main-container'>
-            <h2>Manage Posts</h2>
-            <NavLink to="/posts/new" className="create-post-button btn-primary">Create New Post</NavLink>
-
+        <div className="homepage">
             <div className="posts-container">
-                {posts.length > 0 ? (
-                    posts.map((post) => (
-                        <div key={post.id} className="post-tile">
-                            <NavLink to={`/posts/${post.id}`} className="post-title-link">
-                                <h3>{post.title}</h3>
-                            </NavLink>
-                            <div className="post-content-preview">
-                                {post?.fan_post}
+                {posts.slice().reverse().map((post) => (
+                    <div key={post.id} className="post-tile">
+                        {editingPostId === post.id ? (
+                            // Editing Mode
+                            <div className="edit-post-form">
+                                <h2>Edit Post</h2>
+                                <label>
+                                    Title:
+                                    <input
+                                        type="text"
+                                        value={editTitle}
+                                        onChange={(e) => setEditTitle(e.target.value)}
+                                    />
+                                </label>
+                                <label>
+                                    Content:
+                                    <textarea
+                                        value={editContent}
+                                        onChange={(e) => setEditContent(e.target.value)}
+                                    />
+                                </label>
+                                <div className="post-actions">
+                                    <button onClick={handleSaveEdit} className="btn-primary">Save</button>
+                                    <button onClick={handleCancelEdit} className="btn-secondary">Cancel</button>
+                                </div>
                             </div>
-                            <div className="post-metadata">
-                                <p>Created on {new Date(post.createdAt).toLocaleDateString()}</p>
-                            </div>
-                            <Link className='btn-secondary' to={`/posts/${post.id}`}>Read more</Link>
-                        </div>
-                    ))
-                ) : (
-                    <p>No posts found. Create your first post!</p>
-                )}
-
+                        ) : (
+                            <>
+                                {/* Post Title */}
+                                <div className="post-title">
+                                    <h3>{post.title}</h3>
+                                </div>
+        
+                                {/* Post Preview */}
+                                <div className="post-preview-container">
+                                    <p className="fan-post-preview">
+                                        {post.fan_post.length > 100
+                                            ? `${post.fan_post.slice(0, 100)}...`
+                                            : post.fan_post}
+                                    </p>
+                                </div>
+        
+                                {/* Post Actions */}
+                                <div className="post-actions">
+                                    <button className="btn-secondary" onClick={() => openDeletePostModal(post.id)}>Delete</button>
+                                    <button className="btn-primary" onClick={() => handleEditClick(post)}>Edit</button>
+                                </div>            
+                                
+                                {/* Date Metadata */}
+                                <div className="post-metadata">                            
+                                    <p>Created on {new Date(post.createdAt).toLocaleDateString()}</p>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                ))}
             </div>
+
+            {isPostModalOpen && (
+                <ConfirmDeleteModal
+                    onClose={closeDeleteModal}
+                    onConfirm={handleDeletePost}
+                    modalValue="post"
+                />
+            )}
+
         </div>
     );
 };
+
+
 
 export default Posts;

@@ -24,12 +24,22 @@ function Layout() {
   
 
   return (
-    <>
+    <div className="layout-container">
       <Navigation isLoaded={isLoaded} />
-      {isLoaded && <Outlet />}
-      <Footer/>
-    </>
+      <main className="content-container">
+        {isLoaded && <Outlet />}
+      </main>
+      <Footer />
+    </div>
   );
+
+  // return (
+  //   <>
+  //     <Navigation isLoaded={isLoaded} />
+  //     {isLoaded && <Outlet />}
+  //     <Footer/>
+  //   </>
+  // );
 }
 
 const router = createBrowserRouter([

@@ -9,3 +9,17 @@
 .comment-tile {
     margin-bottom: 20px;
 }
+
+.comment-content {
+    font-size: 14px;
+    color: #666;   
+}
+
+.comment-text {
+    font-size: 14px;
+    color: #666;
+    word-wrap: break-word;        
+    overflow-wrap: break-word;    
+    white-space: normal;          
+    max-width: 100%;             
+}

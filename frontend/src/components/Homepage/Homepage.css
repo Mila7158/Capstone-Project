@@ -1,49 +1,70 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 .homepage {
-    padding: 20px;
-    max-width: 800px; /* Limit the width for better readability */
-    margin: 0 auto; /* Center the content */
+    padding: 20px;                
+    max-width: 800px;             
+    margin: 0 auto;               
 }
 
 .posts-container {
     display: flex;
     flex-direction: column;
-    gap: 20px; /* Space between posts */
+    gap: 20px;                    
+    margin: 0;                    
 }
 
 .post-tile {
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    overflow: hidden;
-    transition: transform 0.3s ease;
-    background-color: #fff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 15px;
-}
-
-.post-tile:hover {
-    transform: scale(1.02);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    border: 1px solid #000;       
+    border-radius: 12px;          
+    padding: 20px;                
+    background-color: #fff;      
+    display: flex;                
+    flex-direction: column;       
+    gap: 20px;                    
+    margin: 0;                    
 }
 
 .post-title {
     font-size: 22px;
     font-weight: bold;
     color: #333;
-    margin-bottom: 10px;
+    margin: 0;    
+    align-self: flex-start;                
 }
 
-.post-details {
-    font-size: 16px;
-    color: #666;
-    line-height: 1.5;
-    margin-bottom: 10px;
+.post-preview-container {
+    border: 1px solid #000;       /* Border around the preview container */
+    padding: 15px;                /* Padding inside the container */
+    border-radius: 4px;           /* Slight rounding for the preview container */
+    margin: 0;                    /* Remove any margin */
 }
 
+.read-more-container {
+    display: flex;                /* Use Flexbox to align the button */
+    justify-content: flex-end;    /* Align the button to the right */
+    margin-top: 10px;             /* Add some space above the button */
+}
+
+.read-more-btn {
+    text-decoration: none;        /* Remove default link styling */
+    color: #000;                  /* Button color */
+    border: 1px solid #000;       /* Add a border to the button */
+    padding: 5px 10px;            /* Padding for button styling */
+    font-weight: bold;
+    text-align: center;
+    margin: 0;                    /* Remove any margin */
+}  
+    
 .post-metadata {
-    font-size: 14px;
-    color: #999;
-    margin-top: 10px;
     display: flex;
-    align-items: center;
-    gap: 50px;
+    justify-content: flex-start;  
+    font-size: 14px;
+    color: #333;
+    gap: 20px;                    
+    margin: 0;                    
+    padding: 0;                   
 }
