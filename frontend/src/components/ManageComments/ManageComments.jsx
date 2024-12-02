@@ -12,7 +12,7 @@ const ManageComments = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isCommentModalOpen, setIsCommentModalOpen] = useState(false);
     const [commentToDelete, setCommentToDelete] = useState(null);
-    console.log(comments)
+  
 
     useEffect(() => {
         dispatch(fetchComments());

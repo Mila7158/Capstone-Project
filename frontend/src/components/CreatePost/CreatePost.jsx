@@ -14,6 +14,7 @@ function CreatePost() {
     });
 
     const [errors, setErrors] = useState({});
+    // eslint-disable-next-line no-unused-vars
     const [isButtonDisabled, setIsButtonDisabled] = useState(true);
 
     const validateField = (name, value) => {
@@ -53,7 +54,8 @@ function CreatePost() {
         const error = validateField(name, value);
         setErrors((prevState) => {
             if (!error) {
-                const { [name]: _, ...rest } = prevState;
+                // eslint-disable-next-line no-unused-vars
+                const { [name]: removedError, ...rest } = prevState;
                 return rest; // Return the rest of the errors (excluding the resolved one)
             }
     

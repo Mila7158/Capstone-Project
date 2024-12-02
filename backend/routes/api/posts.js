@@ -295,8 +295,7 @@ router.post(
       const {
         title,
         fan_post,
-      } = req.body;
-      console.log(req.body)
+      } = req.body;    
 
       // Create the new post in the database
       const newPost = await Post.create({
@@ -413,8 +412,6 @@ router.post(
 router.get("/", async (req, res) => {
   try {
 
-    console.log("\n!!! Incoming GET request to /api/posts"); // Log when the route is hit
-
     // Fetch all posts with their authors
     const posts = await Post.findAll({
       include: [
@@ -441,8 +438,7 @@ router.get("/", async (req, res) => {
       order: [["createdAt", "DESC"]], // Sort posts by most recent
     });
 
-    console.log("\n!!! Posts fetched from database:\n", posts); // Log posts fetched from DB
-
+    
     // Format the response
     const formattedPosts = posts.map((post) => ({
       id: post.id,
@@ -460,8 +456,6 @@ router.get("/", async (req, res) => {
         user: comment.User ? comment.User.username : null,
       })),
     }));
-
-    console.log("\n!!! Formatted Posts Response:\n", formattedPosts); // Log formatted posts
 
     // Send all posts as a JSON response
     return res.json({ Posts: formattedPosts });
@@ -540,8 +534,6 @@ router.post("/:postId/comments", requireAuth, async (req, res) => {
     const existingComment = await Comment.findOne({
       where: { postId, userId },
     });
-    console.log(existingComment)
-    console.log(userId)
 
     if (existingComment) {
       return res

@@ -10,7 +10,7 @@ const Homepage = () => {
 
     useEffect(() => {
         dispatch(fetchAllPosts()); // Fetch all posts on component load
-        console.log("\n!!!!Dispatched fetchAllPosts\n"); // Debugging log
+    
     }, [dispatch]);
 
     return (
