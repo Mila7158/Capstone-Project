@@ -1,6 +1,6 @@
 // backend/routes/api/posts.js
 const express = require("express");
-const { Post, User, Comment } = require("../../db/models");
+const { Post, User, Comment, Image } = require("../../db/models");
 // const { PostImage } = require("../../db/models");
 const { check } = require("express-validator");
 const { handleValidationErrors } = require("../../utils/validation");
@@ -26,40 +26,6 @@ const validatePost = [
 
   handleValidationErrors,
 ];
-
-// // Validation Middleware for Get Posts
-// const validateQueryParams = [
-
-//   query("size")
-//     .optional()
-//     .isInt({ min: 1, max: 20 })
-//     .withMessage("Size must be between 1 and 20"),
-//   query("minLat")
-//     .optional()
-//     .isFloat({ min: -90, max: 90 })
-//     .withMessage("Minimum latitude is invalid"),
-//   query("maxLat")
-//     .optional()
-//     .isFloat({ min: -90, max: 90 })
-//     .withMessage("Maximum latitude is invalid"),
-//   query("minLng")
-//     .optional()
-//     .isFloat({ min: -180, max: 180 })
-//     .withMessage("Minimum longitude is invalid"),
-//   query("maxLng")
-//     .optional()
-//     .isFloat({ min: -180, max: 180 })
-//     .withMessage("Maximum longitude is invalid"),
-//   query("minPrice")
-//     .optional()
-//     .isFloat({ min: 0 })
-//     .withMessage("Minimum price must be greater than or equal to 0"),
-//   query("maxPrice")
-//     .optional()
-//     .isFloat({ min: 0 })
-//     .withMessage("Maximum price must be greater than or equal to 0"),
-//   handleValidationErrors,
-// ];
 
 //* GET all Posts created by the Current User (CHECKED)
 
@@ -320,95 +286,6 @@ router.post(
   }
 );
 
-//* Create a Review for a Post based on the Post's id (CHECKED)
-
-// router.post("/:postId/reviews", requireAuth, async (req, res) => {
-//   try {
-//     const { review, stars } = req.body;
-//     const { postId } = req.params;
-//     const userId = req.user.id;
-
-//     // Check if the user has already submitted a review for this post
-//     const errors = {};
-//     const existingReview = await Review.findOne({
-//       where: { postId, userId },
-//     });
-
-//     if (existingReview) {
-//       return res
-//         .status(500)
-//         .json({ message: "User already has a review for this post" });
-//     }
-//     // Validate the input
-//     if (!review || typeof review !== "string" || review.trim() === "") {
-//       errors.review = "Review text is required";
-//     }    
-//     if (Object.keys(errors).length > 0) {
-//       return res.status(400).json({
-//         message: "Bad Request",
-//         errors,
-//       });
-//     }
-
-//     // Check if the post exists
-//     const post = await Post.findByPk(postId);
-//     if (!post) {
-//       return res.status(404).json({
-//         message: "Post couldn't be found",
-//       });
-//     }
-
-//     // Create a new review
-//     const newReview = await Review.create({
-//       userId,
-//       postId,
-//       review,      
-//     });
-
-//     // Return the newly created review
-//     return res.status(201).json({
-//       id: newReview.id,
-//       userId: newReview.userId,
-//       postId: newReview.postId,
-//       review: newReview.review,      
-//       createdAt: newReview.createdAt,
-//       updatedAt: newReview.updatedAt,
-//     });
-//   } catch (error) {
-//     return res.status(500).json({
-//       message: "Server Error",
-//       error: error.message, // For debugging, but avoid sending this in production
-//     });
-//   }
-// });
-
-// //* GET all reviews for a post (CHECKED)
-// router.get("/:postId/reviews", async (req, res) => {
-//   const { postId } = req.params;
-
-//   // Check if the post exists
-//   const post = await Post.findByPk(postId);
-//   if (!post) {
-//     return res.status(404).json({
-//       message: "Post couldn't be found",
-//     });
-//   }
-
-//   // Fetch reviews for the post, include associated User
-//   const reviews = await Review.findAll({
-//     where: { postId },
-//     include: [
-//       {
-//         model: User,
-//         as: "User", // Use the alias defined in the association
-//         attributes: ["id", "username"],
-//       },     
-//     ],
-//   });
-
-//   return res.status(200).json({ Reviews: reviews });
-// });
-
 router.get("/", async (req, res) => {
   try {
 
@@ -434,10 +311,14 @@ router.get("/", async (req, res) => {
           ],
           required: false, // Allow posts without comments
         },
+        {
+          model: Image, 
+          as: "Images",
+          attributes: ['url'], 
+        },
       ],
       order: [["createdAt", "DESC"]], // Sort posts by most recent
     });
-
     
     // Format the response
     const formattedPosts = posts.map((post) => ({
@@ -455,6 +336,7 @@ router.get("/", async (req, res) => {
         comment: comment.comment,
         user: comment.User ? comment.User.username : null,
       })),
+      images: post.Images.map((image) => image.url),
     }));
 
     // Send all posts as a JSON response

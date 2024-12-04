@@ -17,6 +17,8 @@ const app = express();
 // Log requests
 app.use(morgan('dev'));
 
+app.use('/images', express.static(path.join(__dirname, 'public/images')));
+
 // Parse cookies and JSON
 app.use(cookieParser());
 app.use(express.json());
