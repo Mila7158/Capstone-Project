@@ -163,3 +163,7 @@ git push origin dev
 - Logout: `DELETE /api/session`
 - Signup: `POST /api/users`
 - Get session user: `GET /api/session`
+
+# DEPLOYMENT NOTES
+
+For Docker use external database, for without Docker - internal database URL

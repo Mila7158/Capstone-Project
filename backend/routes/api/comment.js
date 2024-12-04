@@ -1,4 +1,4 @@
-// backend/routes/api/reviews.js
+// backend/routes/api/comment.js
 const express = require("express");
 const {
   Comment,

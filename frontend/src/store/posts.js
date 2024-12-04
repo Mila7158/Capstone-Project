@@ -44,14 +44,6 @@ const loadCurrentUserPosts = (posts) => ({
 });
 
 
-// const createComment = (postId, comment) => ({
-//     type: CREATE_COMMENT,
-//     postId,
-//     comment,
-// });
-
-
-
 export const fetchPosts = () => async (dispatch) => {
     const response = await csrfFetch('/api/posts/current');
     if (response.ok) {
@@ -66,11 +58,12 @@ export const fetchAllPosts = () => async (dispatch) => {
     try {
         const response = await csrfFetch('/api/posts');
         if (response.ok) {
-            const data = await response.json();
+            const data = await response.json();  
 
-  
+            console.log('\nFetched Posts:\n', data); // Debugging step
 
             dispatch(loadAllPosts(data.Posts));
+
         } else {
             console.error('Error fetching all posts');
         }
@@ -208,6 +201,7 @@ const postsReducer = (state = initialState, action) => {
             return newState;
         }
         case LOAD_ALL_POSTS: {
+            console.log('\nLOAD_ALL_POSTS:\n', action.posts); // Debugging step
             const newState = { ...state, allPosts: {} };
             action.posts.forEach(post => {
                 newState.allPosts[post.id] = post;

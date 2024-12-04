@@ -8,6 +8,8 @@ const Homepage = () => {
     const dispatch = useDispatch();
     const posts = useSelector(state => Object.values(state.posts.allPosts)); // Ensure the state structure is correct
 
+    console.log("\nPosts from Redux State:\n", posts); // Debugging step
+
     useEffect(() => {
         dispatch(fetchAllPosts()); // Fetch all posts on component load
     
@@ -17,6 +19,7 @@ const Homepage = () => {
         <div className="homepage">
             <div className="posts-container">
                 {posts.slice().reverse().map((post) => (
+                    console.log("\nPost Images:\n", post.images), // Debugging
                     <div key={post.id} className="post-tile">
                         {/* Post Title */}
                         <div className="post-title">
@@ -38,6 +41,23 @@ const Homepage = () => {
                                 Read More
                             </Link>
                         </div>
+
+                        {/* Add Image */}
+                        {post.images?.[0] && (
+                            <>
+                                {console.log("Rendering Image URL:", post.images[0])} {/* Debugging */}
+                                <img
+                                    src={`http://localhost:8000${post.images[0]}`}
+                                    alt="Post Image"
+                                    // className="post-image"
+                                    style={{
+                                        width: "200px", // Set a fixed width
+                                        height: "150px", // Set a fixed height
+                                        border: "1px solid red", // Add a border for visibility
+                                    }}
+                                />
+                            </>
+                        )}
     
                         {/* Author and Date Metadata */}
                         <div className="post-metadata">
