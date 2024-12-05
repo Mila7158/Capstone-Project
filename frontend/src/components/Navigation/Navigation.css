@@ -4,10 +4,10 @@
 
 
 header {
-    background-color: #E8ECEF;
+    background-color: #e4eaf1;
     color: #333333; 
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    padding: 40px 20px;
+    padding: 40px 40px;
 }
 
 .container {
@@ -19,7 +19,7 @@ header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0 20px;
+    padding: 0 10px;
 }
 
 .navigation-left {
@@ -40,15 +40,17 @@ header {
 
 .site-name {
     font-family: 'Oswald', sans-serif;
-    font-size: 24px;
+    font-size: 30px;
     font-weight: bold;
     letter-spacing: 2px;
     transition: color 0.3s ease;
     color: #00509E;
+    text-shadow: 4px 4px 4px rgba(0, 0, 0, 0.5);    
 }
 
 .site-name:hover {
-    opacity: 0.8;
+    /* opacity: 0.8; */
+    color: #87CEEB
 }
 
 /* Navigation Buttons */
@@ -59,18 +61,21 @@ header {
 }
 
 .nav-button {
-    color: #104E8B; /* Deep Sky Blue */
-    background-color: transparent;
+    color: #e4eaf1; /* Deep Sky Blue */
+    background-color: #333;
     text-decoration: none;
-    border: 1px solid #104E8B;
+    border: 1px solid #333;
     border-radius: 25px;
     padding: 8px 15px;
     transition: background-color 0.3s, color 0.3s;
+    box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.2);
+    /* font-weight: bold; */
 }
 
 .nav-button:hover, .nav-link:hover {
-    background-color: #FFD166; /* Soft Yellow Hover */
-    color: #FFFFFF; /* White Text on Hover */
+    background-color: #ffff; 
+    color: #333; 
+    /* font-weight: bold; */
 }
 
 /* Dropdown Menu */

@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchAllPosts } from "../../store/posts"; // Ensure the correct path to your Redux action
-import './Homepage.css';
 import { Link } from "react-router-dom";
+import './Homepage.css';
 
 const Homepage = () => {
     const dispatch = useDispatch();
@@ -48,13 +48,7 @@ const Homepage = () => {
                                 {console.log("Rendering Image URL:", post.images[0])} {/* Debugging */}
                                 <img
                                     src={`http://localhost:8000${post.images[0]}`}
-                                    alt="Post Image"
-                                    // className="post-image"
-                                    style={{
-                                        width: "200px", // Set a fixed width
-                                        height: "150px", // Set a fixed height
-                                        border: "1px solid red", // Add a border for visibility
-                                    }}
+                                    alt="Post Image"  
                                 />
                             </>
                         )}

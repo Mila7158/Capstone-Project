@@ -7,11 +7,11 @@ import ConfirmDeleteModal from '../ConfirmDeleteModal/ConfirmDeleteModal';
 import './PostDetails.css';
 
 function PostDetails() {
-    const { id } = useParams();
+    const { postId } = useParams();
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const post = useSelector((state) => state?.posts?.currentUserPosts[id]);
+    const post = useSelector((state) => state?.posts?.currentUserPosts[postId]);
     const currentUser = useSelector((state) => state?.session?.user);
 
 
@@ -25,18 +25,50 @@ function PostDetails() {
     const [editedCommentErrors, setEditedCommentErrors] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isPostModalOpen, setIsPostModalOpen] = useState(false);
+    const [editImageUrl, setEditImageUrl] = useState('');
+    const [saveTrigger, setSaveTrigger] = useState(false);
+    
     const [commentToDelete, setCommentToDelete] = useState(null);
 
     const MAX_COMMENT_LENGTH = 300;
     const MIN_COMMENT_LENGTH = 5;
 
     useEffect(() => {
-        dispatch(fetchPostById(id));
-    }, [dispatch, id]);
+
+        console.log("1111111useEffect triggered. postId:", postId);
+
+        if (postId) {
+            console.log("Fetching post with postId:", postId);
+            dispatch(fetchPostById(postId));
+        } else {
+            console.error("Invalid postId in useEffect:", postId);
+        }
+    }, [dispatch, postId]);
+
+    useEffect(() => {
+        if (post && isEditing) {
+            console.log("\n000000000 Entering edit mode. Post data:", post);
+            setEditTitle(post.title || '');
+            setEditContent(post.fan_post || '');
+    
+            // Log the images array from the post object
+            console.log("Images in post data:", post.images);
+    
+            // Set the image URL (as a relative path)
+            const firstImageUrl = post.images?.[0] || '';
+            if (firstImageUrl) {
+                setEditImageUrl(firstImageUrl);
+                console.log("Set editImageUrl to (relative):", firstImageUrl);
+            } else {
+                setEditImageUrl('');
+                console.log("No image found, setting editImageUrl to empty.");
+            }
+        }
+    }, [post, isEditing, saveTrigger]);
 
     if (!post) return <p>Loading...</p>;
 
-    const isPostOwner = currentUser?.id === post.User?.id;
+    const isPostOwner = currentUser?.id === post.authorId;
     const hasAlreadyCommented = post?.comments?.some(
         (comment) => comment?.user?.id === currentUser?.id
     );
@@ -49,14 +81,96 @@ function PostDetails() {
         setEditContent(post.fan_post);
     };
 
-    const handleSaveEdit = async () => {
+    // const handleSaveEdit = async () => {
+    //     const updatedPost = {
+    //         title: editTitle,
+    //         fan_post: editContent,            
+    //     };
+    //     await dispatch(updatePostById(post.id, updatedPost));
+    //     setIsEditing(false);
+    // };
+
+    const handleSaveEdit = async (post) => {
+        if (!post || !post.id) {
+            console.error("Post or post ID is missing");
+            return;
+        }
+    
+        // Log the current editImageUrl value before making changes
+        console.log("Current editImageUrl value before constructing updatedPost:", editImageUrl);
+    
+        // Construct the updated post object
         const updatedPost = {
             title: editTitle,
             fan_post: editContent,
+            images: editImageUrl.startsWith('http://localhost:8000')
+                ? [editImageUrl.replace('http://localhost:8000', '')]
+                : [editImageUrl],
         };
-        await dispatch(updatePostById(post.id, updatedPost));
-        setIsEditing(false);
+    
+        console.log("\n!!Updated Post Object:", updatedPost);
+        console.log("\n!!Updated Post ID:", post.id);
+    
+        try {
+            // Dispatch the update action
+            await dispatch(updatePostById(post.id, updatedPost));
+    
+            // Re-fetch post data to ensure Redux state is updated correctly
+            await dispatch(fetchPostById(post.id));
+    
+            // Toggle saveTrigger state to force useEffect to run again
+            setSaveTrigger((prevTrigger) => !prevTrigger);
+    
+            // Clear form state
+            setEditTitle('');
+            setEditContent('');
+            setEditImageUrl('');
+            setIsEditing(false);
+            navigate(`/posts/${post.id}`);
+        } catch (error) {
+            console.error("Error in handleSaveEdit:", error);
+        }
     };
+
+    // const handleSaveEdit = async (post) => {
+    //     // console.log("\n!!!!Post!!! ", post);
+    //     if (!post || !post.id) {
+    //         console.error("Post or post ID is missing");
+    //         return;
+    //     }
+    //     console.log("Current editImageUrl value before constructing updatedPost:", editImageUrl);
+
+    //     let formattedImageUrl;
+
+    //     if (editImageUrl.startsWith('http://localhost:8000')) {
+    //         formattedImageUrl = editImageUrl.replace('http://localhost:8000', '');
+    //         console.log("editImageUrl starts with 'http://localhost:8000', using relative path:", formattedImageUrl);
+    //     } else {
+    //         formattedImageUrl = editImageUrl;
+    //         console.log("editImageUrl does not start with 'http://localhost:8000', using as is:", formattedImageUrl);
+    //     }
+
+    //     const updatedPost = {
+    //         title: editTitle,
+    //         fan_post: editContent,            
+    //         images: [formattedImageUrl],
+    //     };
+    //     console.log("\n\n!!Updated Post Object:", updatedPost); // Debugging
+    //     console.log("\n\n!!Updated Post ID:", post.id); // Debugging
+    
+    //     // Use post.id here, not fan_post.id
+    //     await dispatch(updatePostById(post.id, updatedPost));
+
+
+    
+    //     setEditTitle('');
+    //     setEditContent('');
+    //     setEditImageUrl('');
+    //     setIsEditing(false);
+    //     navigate(`/posts/${post.id}`);
+    // };
+
+
 
     const handleCancelEdit = () => {
         setIsEditing(false);
@@ -115,7 +229,7 @@ function PostDetails() {
 
         try {
             const commentData = { id: editingCommentId, comment: editedComment.trim() };
-            await dispatch(updateComment(commentData, id));
+            await dispatch(updateComment(commentData, postId));
             setEditingCommentId(null);
             setEditedComment('');
             setEditedCommentErrors('');
@@ -131,7 +245,7 @@ function PostDetails() {
 
     const handleDeleteComment = async () => {
         if (commentToDelete) {
-            await dispatch(deleteComment(commentToDelete, id));
+            await dispatch(deleteComment(commentToDelete, postId));
             setIsModalOpen(false);
             setCommentToDelete(null);
         }
@@ -155,7 +269,7 @@ function PostDetails() {
                             value={editTitle}
                             onChange={(e) => setEditTitle(e.target.value)}
                         />
-                    </label>
+                    </label>                    
                     <label>
                         Content:
                         <textarea
@@ -163,31 +277,86 @@ function PostDetails() {
                             onChange={(e) => setEditContent(e.target.value)}
                         />
                     </label>
-                    <button onClick={handleSaveEdit} className="btn-primary">Save</button>
+
+                    {/* Image URL Input Field */}
+                    <label>
+                        Image URL:
+                        <input
+                            type="text"
+                            value={editImageUrl}
+                            onChange={(e) => setEditImageUrl(e.target.value)}
+                        />
+                    </label>
+
+                    {/* Image Preview */}
+                    {editImageUrl && (
+                        <div className="image-preview-container" style={{ textAlign: "left", marginBottom: "20px" }}>
+                            <img
+                                src={
+                                    editImageUrl.startsWith('http')
+                                        ? editImageUrl
+                                        : `http://localhost:8000${editImageUrl}`
+                                }
+                                alt="Post Image"  
+                                style={{
+                                    width: "100%",                                    
+                                    height: "auto",
+                                    objectFit: "cover",
+                                    maxWidth: "400px",
+                                }}
+                            />
+                        </div>    
+                    )}
+
+                    <button
+                        onClick={() => {
+                            console.log("\n&&&&&&&&&&&&Post being passed to handleSaveEdit:", post.id);
+                            handleSaveEdit(post);
+                        }}
+                        className="btn-primary"
+                    >
+                        Save
+                    </button>
                     <button onClick={handleCancelEdit} className="btn-secondary">Cancel</button>
                 </div>
             ) : (
                 <>
                     <h1 className="post-title">{post?.title}</h1>
                     <p className="post-author">Posted by {post?.User?.username}</p>
-                    <div className="post-content">
+                    <div className="post-content">                   
                         <p>{post.fan_post}</p>
-                        {isPostOwner && (
+
+                        {/* Add Image */}
+                        {post.images?.[0] && (
+                            <>  
+                                {/* {console.log("\n!!!!!!Rendering Image URL:\n", post.images[0])} */}
+                                <img
+                                    src={`http://localhost:8000${post.images[0]}`}
+                                    alt="Post Image"  
+                                    style={{
+                                        width: "100%",
+                                        height: "auto",
+                                        objectFit: "cover",
+                                        maxWidth: "600px",
+                                    }}
+                                />
+                            </>
+                        )}
+                                             
+                        {isPostOwner && (                               
                             <div className="post-actions">
                                 <button onClick={handleEditClick} className="btn-secondary">Edit Post</button>
                                 <button onClick={openDeletePostModal} className="btn-danger">Delete Post</button>
-                            </div>
+                            </div>                           
                         )}
                     </div>
                 </>
-            )}            
-            
+            )}             
             <div className="post-comments">
                 <h2>Comments</h2>
                 {post.comments && post.comments.length > 0 ? (
                     post.comments.map((comment) => {
                         const isCommentOwner = currentUser?.id === comment.user?.id;
-
                         return (
                             <div key={comment.id} className="comment">
                                 {editingCommentId === comment.id ? (

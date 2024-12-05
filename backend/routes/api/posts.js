@@ -27,7 +27,7 @@ const validatePost = [
   handleValidationErrors,
 ];
 
-//* GET all Posts created by the Current User (CHECKED)
+//* GET all Posts created by the Current User 
 
 router.get("/current", async (req, res) => {
   try {
@@ -39,137 +39,280 @@ router.get("/current", async (req, res) => {
       where: { authorId: userId }, // Filter by the current user's ID
       include: [
         {
+          model: User,
+          as: "Author",
+          attributes: ["id", "username"], // Include author's username
+        },
+        {
           model: Comment,
           as: "Comments",
-          attributes: ["id", "comment"], // Only need the stars for aggregation
+          attributes: ["id", "comment", "createdAt"], // Include necessary comment attributes
           required: false,
           include: [
             {
               model: User,
-              as: 'User',
-              attributes: ['id', 'username'],
-            }
+              as: "User",
+              attributes: ["id", "username"], // Include comment author's username
+            },
           ],
-          order: [["createdAt", "DESC"]],
-          required: false, // Allow posts without comments
         },
-        // {
-        //   model: PostImage,
-        //   where: { preview: true }, // Only fetch preview images
-        //   attributes: ["url"], // Only get the URL of the image
-        //   required: false, // Include Posts without preview images
-        // },
+        {
+          model: Image,
+          as: "Images", // Ensure this alias matches your Post-Image association
+          attributes: ["url"], // Include image URLs
+        },
       ],
-          order: [["createdAt", "DESC"]],
-          // group: ["Post.id", "PostImages.id"], // Group by Post and PostImage
-      // attributes: {
-      //   include: [[fn("AVG", col("Reviews.stars")), "avgStarRating"]], // Calculate avgRating
-      // },
+      order: [["createdAt", "DESC"]], // Sort posts by most recent
     });
 
     // Format the response
-    const formattedPosts = posts.map((post) => {
-      return {
-        id: post.id,
-        authorId: post.authorId,
-        title: post.title,
-        fan_post: post.fan_post,
-        createdAt: post.createdAt,
-        updatedAt: post.updatedAt,
-        comments: post.Comments.map((comment) => ({
-          id: comment.id,
-          comment: comment.comment,
-          user: comment.User ? comment.User.username : null,
-        })),
-        // previewImage: post.PostImages.length ? post.PostImages[0].url : null, // Get preview image URL
-      };
-    });
+    const formattedPosts = posts.map((post) => ({
+      id: post.id,
+      title: post.title,
+      fan_post: post.fan_post,
+      createdAt: post.createdAt,
+      updatedAt: post.updatedAt,
+      author: {
+        id: post.Author?.id,
+        username: post.Author?.username,
+      },
+      comments: post.Comments.map((comment) => ({
+        id: comment.id,
+        comment: comment.comment,
+        user: comment.User ? { id: comment.User.id, username: comment.User.username } : null,
+        createdAt: comment.createdAt,
+      })),
+      images: post.Images.map((image) => image.url), // Include all associated images
+    }));
 
     return res.json({ Posts: formattedPosts });
   } catch (err) {
     console.error("Error fetching posts for current user:", err);
-    return res.status(401).json({ message: "Unauthorized" });
+    return res.status(500).json({ message: "Internal server error" });
   }
 });
 
+//-----------------------------------------------------------
+// router.get("/current", async (req, res) => {
+//   try {
+//     // Get the current user's ID
+//     const userId = req.user.id;
 
-//* GET details of a Post by ID (CHECKED)
+//     // Fetch posts owned by the current user
+//     const posts = await Post.findAll({
+//       where: { authorId: userId }, // Filter by the current user's ID
+//       include: [
+//         {
+//           model: Comment,
+//           as: "Comments",
+//           attributes: ["id", "comment"], // Only need the stars for aggregation
+//           required: false,
+//           include: [
+//             {
+//               model: User,
+//               as: 'User',
+//               attributes: ['id', 'username'],
+//             }
+//           ],
+//           order: [["createdAt", "DESC"]],
+//           required: false, // Allow posts without comments
+//         },
+//         // {
+//         //   model: PostImage,
+//         //   where: { preview: true }, // Only fetch preview images
+//         //   attributes: ["url"], // Only get the URL of the image
+//         //   required: false, // Include Posts without preview images
+//         // },
+//       ],
+//           order: [["createdAt", "DESC"]],
+//           // group: ["Post.id", "PostImages.id"], // Group by Post and PostImage
+//       // attributes: {
+//       //   include: [[fn("AVG", col("Reviews.stars")), "avgStarRating"]], // Calculate avgRating
+//       // },
+//     });
+
+//     // Format the response
+//     const formattedPosts = posts.map((post) => {
+//       return {
+//         id: post.id,
+//         authorId: post.authorId,
+//         title: post.title,
+//         fan_post: post.fan_post,
+//         createdAt: post.createdAt,
+//         updatedAt: post.updatedAt,
+//         comments: post.Comments.map((comment) => ({
+//           id: comment.id,
+//           comment: comment.comment,
+//           user: comment.User ? comment.User.username : null,
+//         })),
+//         // previewImage: post.PostImages.length ? post.PostImages[0].url : null, // Get preview image URL
+//       };
+//     });
+
+//     return res.json({ Posts: formattedPosts });
+//   } catch (err) {
+//     console.error("Error fetching posts for current user:", err);
+//     return res.status(401).json({ message: "Unauthorized" });
+//   }
+// });
+
+
+// //* GET details of a Post by ID 
+
 router.get("/:postId", async (req, res) => {
-  const { postId } = req.params; // GET from URL
+  const { postId } = req.params; // Extract postId from URL
 
-  const post = await Post.findByPk(postId, {
-    include: [
-      {
-        model: User,
-        as: "Author",
-        attributes: ["id", "username"],
-      },
-      {
-        model: Comment,
-        as: "Comments",
-        attributes: ["id", "comment", "createdAt"],
-        required: false,
-        include: [
-          {
-            model: User,
-            as: 'User',
-            attributes: ['id', 'username'],
-          }
-        ],
-        required: false, // Allow posts without comments
-      },
-    ],
-    // Group by required attributes
-    // aattributes: {
-    //   include: [
-    //     [fn("COUNT", col("Comment.id")), "commentsCount"], // Include a count of comments
-    //   ],
-    // },
-  });
-
-  // Check if the post exists
-  if (!post) {
-    return res.status(404).json({
-      message: "Post couldn't be found",
+  try {
+    const post = await Post.findByPk(postId, {
+      include: [
+        {
+          model: User,
+          as: "Author",
+          attributes: ["id", "username"],
+        },
+        {
+          model: Comment,
+          as: "Comments",
+          attributes: ["id", "comment", "createdAt"],
+          required: false,
+          include: [
+            {
+              model: User,
+              as: "User",
+              attributes: ["id", "username"],
+            },
+          ],
+        },
+        {
+          model: Image,
+          as: "Images", // Ensure this alias matches your Post-Image association
+          attributes: ["url"],
+        },
+      ],
     });
+
+    // Check if the post exists
+    if (!post) {
+      return res.status(404).json({
+        message: "Post couldn't be found",
+      });
+    }
+
+    // Count the number of comments for the post
+    // const commentsCount = await Comment.count({
+    //   where: { postId },
+    // });
+
+    // Format the response
+    const response = {
+      id: post.id,
+      authorId: post.Author.id,
+      title: post.title,
+      fan_post: post.fan_post,
+      createdAt: post.createdAt,
+      updatedAt: post.updatedAt,
+     
+      comments: post.Comments.map((comment) => ({
+        id: comment.id,
+        comment: comment.comment,
+        user: comment.User ? { id: comment.User.id, username: comment.User.username } : null,
+        createdAt: comment.createdAt,
+      })),
+      images: post.Images.map((image) => image.url), // Include images in response
+      author: {
+        id: post.Author.id,
+        username: post.Author.username,
+      },
+    };
+
+    // Send the formatted response
+    return res.status(200).json(response);
+  } catch (err) {
+    console.error("Error fetching post details:", err);
+    return res.status(500).json({ message: "Internal server error" });
   }
-
-  const commentsCount = await Comment.count({
-    where: { postId },
 });
 
+//-----------------------------------------------------
+// router.get("/:postId", async (req, res) => {
+//   const { postId } = req.params; // GET from URL
 
-  // Prepare response object
-  const response = {
-    id: post.id,
-    authorId: post.Author.id,
-    title: post.title,
-    fan_post: post.fan_post,
-    createdAt: post.createdAt,
-    updatedAt: post.updatedAt,
-    comments: post.Comments.map((comment) => ({
-      id: comment.id,
-      comment: comment.comment,
-      user: comment.User ? comment.User : null,
-      createdAt: comment.createdAt
-    })),
-    commentsCount, 
+//   const post = await Post.findByPk(postId, {
+//     include: [
+//       {
+//         model: User,
+//         as: "Author",
+//         attributes: ["id", "username"],
+//       },
+//       {
+//         model: Comment,
+//         as: "Comments",
+//         attributes: ["id", "comment", "createdAt"],
+//         required: false,
+//         include: [
+//           {
+//             model: User,
+//             as: 'User',
+//             attributes: ['id', 'username'],
+//           }
+//         ],
+//         required: false, // Allow posts without comments
+//       },
+//     ],
+    
+//   });
+//   // Check if the post exists
+//   if (!post) {
+//     return res.status(404).json({
+//       message: "Post couldn't be found",
+//     });
+//   }
 
-    // PostImages: post.PostImages, // Directly include the PostImages
-    User: {
-      id: post.Author.id,
-      username: post.Author.username      
-    },
-  };
+//   const commentsCount = await Comment.count({
+//     where: { postId },
+// });
 
-  return res.status(200).json(response);
-});
+//   // Prepare response object
+//   const response = {
+//     id: post.id,
+//     authorId: post.Author.id,
+//     title: post.title,
+//     fan_post: post.fan_post,
+//     createdAt: post.createdAt,
+//     updatedAt: post.updatedAt,
+//     comments: post.Comments.map((comment) => ({
+//       id: comment.id,
+//       comment: comment.comment,
+//       user: comment.User ? comment.User : null,
+//       createdAt: comment.createdAt
+//     })),
+//     commentsCount, 
+
+//     // PostImages: post.PostImages, // Directly include the PostImages
+//     User: {
+//       id: post.Author.id,
+//       username: post.Author.username      
+//     },
+//   };
+
+//   return res.status(200).json(response);
+// });
 
 //* Edit a Post
+
 router.put("/:postId", requireAuth, validatePost, async (req, res) => {
   const userId = req.user.id; // Get authenticated user ID
   const { postId } = req.params; // Get post ID from URL
-  const { title, fan_post } = req.body; // Get updated data from request body
+  const { title, fan_post, images } = req.body; // Get updated data from request body
+
+  console.log("@@@@@@\nPOST  ID:\n", postId);
+
+  // Validate postId
+  if (!postId || isNaN(postId)) {
+    return res.status(400).json({
+      message: "Invalid post ID",
+    });
+  }
 
   try {
     // Find the post by its ID
@@ -196,6 +339,28 @@ router.put("/:postId", requireAuth, validatePost, async (req, res) => {
     post.title = title;
     post.fan_post = fan_post;
     await post.save(); // Save changes to the database
+    console.log("Post updated successfully.");
+
+    // Handle image updates
+    if (images && Array.isArray(images)) {
+      // Delete existing images for this post
+      await Image.destroy({
+        where: {
+          postId: postId,
+        },
+      });
+
+      // Create new images from the provided array
+      const imagePromises = images.map((url) => {
+        return Image.create({
+          postId: postId,
+          url: url,
+        });
+      });
+
+      await Promise.all(imagePromises);
+      console.log("Images updated successfully.");
+    }
 
     // Fetch the updated post with associations
     const updatedPost = await Post.findByPk(postId, {
@@ -218,11 +383,22 @@ router.put("/:postId", requireAuth, validatePost, async (req, res) => {
             },
           ],
         },
+        {
+          model: Image,
+          as: "Images",
+          attributes: ["url"],
+        },
       ],
     });
 
-    // Respond with the updated post data, formatted like the GET /:postId endpoint
-    return res.status(200).json({
+    if (!updatedPost) {
+      throw new Error("Failed to fetch updated post.");
+    }
+
+    console.log("Updated Post Object:", updatedPost);
+
+    // Respond with the updated post data
+    const response = {
       id: updatedPost.id,
       authorId: updatedPost.Author.id,
       title: updatedPost.title,
@@ -232,21 +408,198 @@ router.put("/:postId", requireAuth, validatePost, async (req, res) => {
       comments: updatedPost.Comments.map((comment) => ({
         id: comment.id,
         comment: comment.comment,
-        user: comment.User ? comment.User : null,
+        user: comment.User ? { id: comment.User.id, username: comment.User.username } : null,
         createdAt: comment.createdAt,
       })),
-      User: {
+      images: updatedPost.Images.map((image) => image.url), // Include images in response
+      author: {
         id: updatedPost.Author.id,
         username: updatedPost.Author.username,
       },
-    });
+    };
+    return res.status(200).json(response);
+    
   } catch (err) {
-    console.error("Error updating post:", err);
+    console.error("Error updating post:", err.stack);
     return res.status(500).json({
       message: "Internal Server Error",
     });
   }
 });
+
+//----------------------------------------2
+// router.put("/:postId", requireAuth, validatePost, async (req, res) => {
+//   const userId = req.user.id; // Get authenticated user ID
+//   const { postId } = req.params; // Get post ID from URL
+//   const { title, fan_post, images } = req.body; // Get updated data from request body
+
+//   console.log("@@@@@@\nREQ.BODY\n", req.body);
+
+//   try {
+//     // Find the post by its ID
+//     const post = await Post.findByPk(postId);
+
+//     // Check if the post exists
+//     if (!post) {
+//       return res.status(404).json({
+//         message: "Post couldn't be found",
+//       });
+//     }
+
+//     // Check if the authenticated user is the author of the post
+//     if (post.authorId !== userId) {
+//       return res.status(403).json({
+//         message: "Forbidden",
+//         errors: {
+//           authorization: "Only the author can edit this post",
+//         },
+//       });
+//     }
+
+//     // Update the post with new values
+//     post.title = title;
+//     post.fan_post = fan_post;
+//     await post.save(); // Save changes to the database
+
+//     // Fetch the updated post with associations
+//     const updatedPost = await Post.findByPk(postId, {
+//       include: [
+//         {
+//           model: User,
+//           as: "Author",
+//           attributes: ["id", "username"],
+//         },
+//         {
+//           model: Comment,
+//           as: "Comments",
+//           attributes: ["id", "comment", "createdAt"],
+//           required: false,
+//           include: [
+//             {
+//               model: User,
+//               as: "User",
+//               attributes: ["id", "username"],
+//             },
+//           ],
+//         },
+//         {
+//           model: Image,
+//           as: "Images", // Ensure this alias matches your Post-Image association
+//           attributes: ["url"],
+//         },
+//       ],
+//     });
+
+//     // Respond with the updated post data, formatted like the GET /:postId endpoint
+//     return res.status(200).json({
+//       id: updatedPost.id,
+//       authorId: updatedPost.Author.id,
+//       title: updatedPost.title,
+//       fan_post: updatedPost.fan_post,
+//       createdAt: updatedPost.createdAt,
+//       updatedAt: updatedPost.updatedAt,
+//       comments: updatedPost.Comments.map((comment) => ({
+//         id: comment.id,
+//         comment: comment.comment,
+//         user: comment.User ? { id: comment.User.id, username: comment.User.username } : null,
+//         createdAt: comment.createdAt,
+//       })),
+//       images: updatedPost.Images.map((image) => image.url), // Include images in response
+//       author: {
+//         id: updatedPost.Author.id,
+//         username: updatedPost.Author.username,
+//       },
+//     });
+//   } catch (err) {
+//     console.error("Error updating post:", err);
+//     return res.status(500).json({
+//       message: "Internal Server Error",
+//     });
+//   }
+// });
+
+//----------------------------------------
+// router.put("/:postId", requireAuth, validatePost, async (req, res) => {
+//   const userId = req.user.id; // Get authenticated user ID
+//   const { postId } = req.params; // Get post ID from URL
+//   const { title, fan_post } = req.body; // Get updated data from request body
+
+//   try {
+//     // Find the post by its ID
+//     const post = await Post.findByPk(postId);
+
+//     // Check if the post exists
+//     if (!post) {
+//       return res.status(404).json({
+//         message: "Post couldn't be found",
+//       });
+//     }
+
+//     // Check if the authenticated user is the author of the post
+//     if (post.authorId !== userId) {
+//       return res.status(403).json({
+//         message: "Forbidden",
+//         errors: {
+//           authorization: "Only the author can edit this post",
+//         },
+//       });
+//     }
+
+//     // Update the post with new values
+//     post.title = title;
+//     post.fan_post = fan_post;
+//     await post.save(); // Save changes to the database
+
+//     // Fetch the updated post with associations
+//     const updatedPost = await Post.findByPk(postId, {
+//       include: [
+//         {
+//           model: User,
+//           as: "Author",
+//           attributes: ["id", "username"],
+//         },
+//         {
+//           model: Comment,
+//           as: "Comments",
+//           attributes: ["id", "comment", "createdAt"],
+//           required: false,
+//           include: [
+//             {
+//               model: User,
+//               as: "User",
+//               attributes: ["id", "username"],
+//             },
+//           ],
+//         },
+//       ],
+//     });
+
+//     // Respond with the updated post data, formatted like the GET /:postId endpoint
+//     return res.status(200).json({
+//       id: updatedPost.id,
+//       authorId: updatedPost.Author.id,
+//       title: updatedPost.title,
+//       fan_post: updatedPost.fan_post,
+//       createdAt: updatedPost.createdAt,
+//       updatedAt: updatedPost.updatedAt,
+//       comments: updatedPost.Comments.map((comment) => ({
+//         id: comment.id,
+//         comment: comment.comment,
+//         user: comment.User ? comment.User : null,
+//         createdAt: comment.createdAt,
+//       })),
+//       User: {
+//         id: updatedPost.Author.id,
+//         username: updatedPost.Author.username,
+//       },
+//     });
+//   } catch (err) {
+//     console.error("Error updating post:", err);
+//     return res.status(500).json({
+//       message: "Internal Server Error",
+//     });
+//   }
+// });
 
 //* Create a Post 
 router.post(
