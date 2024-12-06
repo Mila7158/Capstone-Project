@@ -81,15 +81,6 @@ function PostDetails() {
         setEditContent(post.fan_post);
     };
 
-    // const handleSaveEdit = async () => {
-    //     const updatedPost = {
-    //         title: editTitle,
-    //         fan_post: editContent,            
-    //     };
-    //     await dispatch(updatePostById(post.id, updatedPost));
-    //     setIsEditing(false);
-    // };
-
     const handleSaveEdit = async (post) => {
         if (!post || !post.id) {
             console.error("Post or post ID is missing");
@@ -131,46 +122,6 @@ function PostDetails() {
             console.error("Error in handleSaveEdit:", error);
         }
     };
-
-    // const handleSaveEdit = async (post) => {
-    //     // console.log("\n!!!!Post!!! ", post);
-    //     if (!post || !post.id) {
-    //         console.error("Post or post ID is missing");
-    //         return;
-    //     }
-    //     console.log("Current editImageUrl value before constructing updatedPost:", editImageUrl);
-
-    //     let formattedImageUrl;
-
-    //     if (editImageUrl.startsWith('http://localhost:8000')) {
-    //         formattedImageUrl = editImageUrl.replace('http://localhost:8000', '');
-    //         console.log("editImageUrl starts with 'http://localhost:8000', using relative path:", formattedImageUrl);
-    //     } else {
-    //         formattedImageUrl = editImageUrl;
-    //         console.log("editImageUrl does not start with 'http://localhost:8000', using as is:", formattedImageUrl);
-    //     }
-
-    //     const updatedPost = {
-    //         title: editTitle,
-    //         fan_post: editContent,            
-    //         images: [formattedImageUrl],
-    //     };
-    //     console.log("\n\n!!Updated Post Object:", updatedPost); // Debugging
-    //     console.log("\n\n!!Updated Post ID:", post.id); // Debugging
-    
-    //     // Use post.id here, not fan_post.id
-    //     await dispatch(updatePostById(post.id, updatedPost));
-
-
-    
-    //     setEditTitle('');
-    //     setEditContent('');
-    //     setEditImageUrl('');
-    //     setIsEditing(false);
-    //     navigate(`/posts/${post.id}`);
-    // };
-
-
 
     const handleCancelEdit = () => {
         setIsEditing(false);
@@ -251,12 +202,6 @@ function PostDetails() {
         }
     };
 
-    // const closeDeleteModal = () => {
-    //     setIsModalOpen(false);
-    //     setCommentToDelete(null);
-    // };
-
-
     return (
         <div className="post-details-container main-container">
             {isEditing ? (
@@ -266,6 +211,7 @@ function PostDetails() {
                         Title:
                         <input
                             type="text"
+                            className="edit-input-title"
                             value={editTitle}
                             onChange={(e) => setEditTitle(e.target.value)}
                         />
@@ -273,6 +219,7 @@ function PostDetails() {
                     <label>
                         Content:
                         <textarea
+                            className="edit-input-content"
                             value={editContent}
                             onChange={(e) => setEditContent(e.target.value)}
                         />
@@ -283,6 +230,7 @@ function PostDetails() {
                         Image URL:
                         <input
                             type="text"
+                            className="edit-input-image-url"
                             value={editImageUrl}
                             onChange={(e) => setEditImageUrl(e.target.value)}
                         />
@@ -310,7 +258,7 @@ function PostDetails() {
 
                     <button
                         onClick={() => {
-                            console.log("\n&&&&&&&&&&&&Post being passed to handleSaveEdit:", post.id);
+                            // console.log("\n&&&&&&&&&&&&Post being passed to handleSaveEdit:", post.id);
                             handleSaveEdit(post);
                         }}
                         className="btn-primary"

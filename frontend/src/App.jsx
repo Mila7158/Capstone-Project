@@ -6,7 +6,7 @@ import * as sessionActions from './store/session';
 import Homepage from './components/Homepage/Homepage.jsx';
 import CreatePost from './components/CreatePost/CreatePost';
 import PostDetails from './components/PostDetails/PostDetails';
-import Posts from './components/Posts/Posts';
+import MyPosts from './components/MyPosts/MyPosts';
 import UpdatePost from './components/UpdatePost/UpdatePost';
 import ManageComments from './components/ManageComments/ManageComments.jsx';
 import Footer from './components/Footer/Footer.jsx';
@@ -50,9 +50,13 @@ const router = createBrowserRouter([
         path: '/',
         element: <Homepage/>
       },
+      // {
+      //   path: '/posts',
+      //   element: <Posts/>
+      // },
       {
-        path: '/posts',
-        element: <Posts/>
+        path: '/posts/current',
+        element: <MyPosts/>
       },
       {
         path: '/posts/new',

@@ -54,7 +54,7 @@ function Navigation() {
                     <NavLink to="/posts/new" className="nav-button">
                       Post
                     </NavLink>
-                    <NavLink to="/posts" className="nav-button">
+                    <NavLink to="posts/current" className="nav-button">
                       My Posts
                     </NavLink>
                     <NavLink to="/comments/current" className="nav-button">

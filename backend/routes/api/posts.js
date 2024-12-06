@@ -40,8 +40,8 @@ router.get("/current", async (req, res) => {
       include: [
         {
           model: User,
-          as: "Author",
-          attributes: ["id", "username"], // Include author's username
+          as: "Author", // Ensure the alias matches your association
+          attributes: ["id", "username"], // Include only necessary author fields
         },
         {
           model: Comment,
@@ -80,7 +80,6 @@ router.get("/current", async (req, res) => {
         id: comment.id,
         comment: comment.comment,
         user: comment.User ? { id: comment.User.id, username: comment.User.username } : null,
-        createdAt: comment.createdAt,
       })),
       images: post.Images.map((image) => image.url), // Include all associated images
     }));
@@ -90,7 +89,71 @@ router.get("/current", async (req, res) => {
     console.error("Error fetching posts for current user:", err);
     return res.status(500).json({ message: "Internal server error" });
   }
-});
+});  
+
+//-------------------------------------------
+// router.get("/current", async (req, res) => {
+//   try {
+//     // Get the current user's ID
+//     const userId = req.user.id;
+
+//     // Fetch posts owned by the current user
+//     const posts = await Post.findAll({
+//       where: { authorId: userId }, // Filter by the current user's ID
+//       include: [
+//         {
+//           model: User,
+//           as: "Author",
+//           attributes: ["id", "username"], // Include author's username
+//         },
+//         {
+//           model: Comment,
+//           as: "Comments",
+//           attributes: ["id", "comment", "createdAt"], // Include necessary comment attributes
+//           required: false,
+//           include: [
+//             {
+//               model: User,
+//               as: "User",
+//               attributes: ["id", "username"], // Include comment author's username
+//             },
+//           ],
+//         },
+//         {
+//           model: Image,
+//           as: "Images", // Ensure this alias matches your Post-Image association
+//           attributes: ["url"], // Include image URLs
+//         },
+//       ],
+//       order: [["createdAt", "DESC"]], // Sort posts by most recent
+//     });
+
+//     // Format the response
+//     const formattedPosts = posts.map((post) => ({
+//       id: post.id,
+//       title: post.title,
+//       fan_post: post.fan_post,
+//       createdAt: post.createdAt,
+//       updatedAt: post.updatedAt,
+//       author: {
+//         id: post.Author?.id,
+//         username: post.Author?.username,
+//       },
+//       comments: post.Comments.map((comment) => ({
+//         id: comment.id,
+//         comment: comment.comment,
+//         user: comment.User ? { id: comment.User.id, username: comment.User.username } : null,
+//         createdAt: comment.createdAt,
+//       })),
+//       images: post.Images.map((image) => image.url), // Include all associated images
+//     }));
+
+//     return res.json({ Posts: formattedPosts });
+//   } catch (err) {
+//     console.error("Error fetching posts for current user:", err);
+//     return res.status(500).json({ message: "Internal server error" });
+//   }
+// });
 
 //-----------------------------------------------------------
 // router.get("/current", async (req, res) => {

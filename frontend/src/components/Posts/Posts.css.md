@@ -1,12 +1,8 @@
-
-
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
-
-
 
 .homepage {
     padding: 20px;
@@ -112,8 +108,18 @@
     background-color: #ccc;
 }
 
+.post-image-container {
+    margin-bottom: 20px; /* Add space between the image and the content below */
+    text-align: center; /* Center the image within the container */
+    display: flex; /* Flexbox for alignment */
+    justify-content: center; /* Center horizontally */
+}
+
 .post-image {
-    object-fit: contain; 
-    display: block;    
-    margin: 0 auto;     
+    width: 100%; /* Ensure the image adjusts to the container width */
+    height: auto; /* Maintain aspect ratio */
+    max-width: 600px; /* Optional: Limit the maximum width of the image */
+    object-fit: contain; /* Prevent distortion */
+    border-radius: 8px; /* Add rounded corners */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
 }

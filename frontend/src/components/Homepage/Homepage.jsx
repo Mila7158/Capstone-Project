@@ -49,6 +49,7 @@ const Homepage = () => {
                                 <img
                                     src={`http://localhost:8000${post.images[0]}`}
                                     alt="Post Image"  
+                                    
                                 />
                             </>
                         )}
