@@ -49,6 +49,9 @@ module.exports = {
     options.tableName = "Comments";
     await queryInterface.dropTable(options);
 
+    options.tableName = "Images";
+    await queryInterface.dropTable(options);
+
     options.tableName = "Posts";
     await queryInterface.dropTable(options);
   },
