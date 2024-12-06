@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate, useParams } from 'react-router-dom';
-import { fetchPostById, updatePostById, deletePostById, createNewComment } from '../../store/posts';
+import { fetchPostById, updatePostById, deletePostById, createNewComment, fetchAllPosts } from '../../store/posts';
 import { deleteComment, updateComment } from '../../store/comments';
 import ConfirmDeleteModal from '../ConfirmDeleteModal/ConfirmDeleteModal';
 import './PostDetails.css';
@@ -30,15 +30,11 @@ function PostDetails() {
     
     const [commentToDelete, setCommentToDelete] = useState(null);
 
-    const MAX_COMMENT_LENGTH = 300;
-    const MIN_COMMENT_LENGTH = 5;
+    // const MAX_COMMENT_LENGTH = 300;
+    // const MIN_COMMENT_LENGTH = 5;
 
     useEffect(() => {
-
-        console.log("1111111useEffect triggered. postId:", postId);
-
-        if (postId) {
-            console.log("Fetching post with postId:", postId);
+        if (postId) {         
             dispatch(fetchPostById(postId));
         } else {
             console.error("Invalid postId in useEffect:", postId);
@@ -47,13 +43,10 @@ function PostDetails() {
 
     useEffect(() => {
         if (post && isEditing) {
-            console.log("\n000000000 Entering edit mode. Post data:", post);
+            
             setEditTitle(post.title || '');
-            setEditContent(post.fan_post || '');
-    
-            // Log the images array from the post object
-            console.log("Images in post data:", post.images);
-    
+            setEditContent(post.fan_post || '');    
+        
             // Set the image URL (as a relative path)
             const firstImageUrl = post.images?.[0] || '';
             if (firstImageUrl) {
@@ -65,6 +58,8 @@ function PostDetails() {
             }
         }
     }, [post, isEditing, saveTrigger]);
+
+   
 
     if (!post) return <p>Loading...</p>;
 
@@ -132,18 +127,34 @@ function PostDetails() {
     };
 
     const handleDeletePost = async () => {
-        await dispatch(deletePostById(post.id));
-        setIsPostModalOpen(false);
-        navigate('/');
+        try {
+            // Delete post from the backend
+            const deleted = await dispatch(deletePostById(post.id));
+    
+            // If deletion was successful, update the homepage
+            if (deleted) {
+                // Fetch all posts again to update the homepage
+                dispatch(fetchAllPosts());
+            }
+    
+            // Close delete confirmation modal
+            setIsPostModalOpen(false);
+    
+            // Navigate back to the homepage
+            navigate('/');
+        } catch (error) {
+            console.error("Error deleting post:", error);
+        }
     };
 
-    const validateComment = (comment) => {
-        if (comment.trim().length < MIN_COMMENT_LENGTH) {
-            return `Comment must be at least ${MIN_COMMENT_LENGTH} characters long.`;
-        } else if (comment.trim().length > MAX_COMMENT_LENGTH) {
-            return `Comment cannot exceed ${MAX_COMMENT_LENGTH} characters.`;
+    // Validation function
+    const validateComment = (text) => {
+        if (text.trim().length < 5) {
+            return 'Comment must be at least 5 characters long.';
+        } else if (text.trim().length > 300) {
+            return 'Comment cannot exceed 300 characters.';
         }
-        return '';
+        return null;
     };
 
     const handleAddCommentChange = (e) => {

@@ -54,7 +54,7 @@ textarea {
 textarea {
     height: 120px;
     resize: none;
-    max-width: 95%;
+    max-width: 100%;
     
 }
 

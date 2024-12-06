@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchComments, deleteComment } from '../../store/comments';
 import UpdateCommentModal from '../UpdateCommentModal/UpdateCommentModal';
-import './ManageComments.css';
 import ConfirmDeleteModal from '../ConfirmDeleteModal/ConfirmDeleteModal';
+import './ManageComments.css';
+
 
 const ManageComments = () => {
     const dispatch = useDispatch();

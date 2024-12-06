@@ -164,9 +164,6 @@ export const deletePostById = (postId) => async (dispatch) => {
 };
 
 export const updatePostById = (postId, postData) => async (dispatch) => {
-    console.log("\n((((((((((((((((Post ID in updatePostById:\n", postId);
-    console.log("\n)))))))))))))))))Updated Post Data:\n",postData);
-
     try {
         const response = await csrfFetch(`/api/posts/${postId}`, {
             method: 'PUT',
@@ -212,8 +209,6 @@ export const createNewComment = (postId, commentData) => async (dispatch) => {
     }
 };
 
-
-
 const initialState = {
     currentUserPosts: {},
     allPosts: {}
@@ -228,15 +223,7 @@ const postsReducer = (state = initialState, action) => {
             });
             return newState;
         }
-        // case LOAD_ALL_POSTS: {
-        //     // console.log('\nLOAD_ALL_POSTS:\n', action.posts);
-        //     const newState = { ...state, allPosts: {} };
-        //     action.posts.forEach(post => {
-        //         newState.allPosts[post.id] = post;
-        //     });
-        //     return newState;
-        // }
-        
+                
         case LOAD_ALL_POSTS: {
             const newState = { ...state, allPosts: { ...state.allPosts } };
             action.posts.forEach(post => {
@@ -252,12 +239,6 @@ const postsReducer = (state = initialState, action) => {
             });
             return newState;
         }
-
-        // case LOAD_POST: {
-        //     const newState = { ...state.currentUserPosts };
-        //     newState[action.post.id] = action.post;
-        //     return { ...state, currentUserPosts: newState };
-        // }
 
         case LOAD_POST: {
             const newState = { ...state };
@@ -316,10 +297,21 @@ const postsReducer = (state = initialState, action) => {
         //     return { ...state, currentUserPosts: newState };
         // }
 
+        // case DELETE_POST: {
+        //     const newState = { ...state };
+        //     newState.currentUserPosts = { ...state.currentUserPosts };
+        //     delete newState.currentUserPosts[action.postId];
+        //     return newState;
+        // }
+
         case DELETE_POST: {
-            const newState = { ...state };
-            newState.currentUserPosts = { ...state.currentUserPosts };
+            const newState = {
+                ...state,
+                currentUserPosts: { ...state.currentUserPosts },
+                allPosts: { ...state.allPosts }
+            };
             delete newState.currentUserPosts[action.postId];
+            delete newState.allPosts[action.postId];
             return newState;
         }
 

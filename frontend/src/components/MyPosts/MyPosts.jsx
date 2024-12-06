@@ -172,7 +172,7 @@ const MyPosts = () => {
                             );
                         })
                     ) : (
-                        <p>You have no posts yet. Create your first post now!</p>
+                        <p style={{ color: 'white' }}>You have no posts yet. Create your first post now!</p>
                     )
                 )}
             </div>
