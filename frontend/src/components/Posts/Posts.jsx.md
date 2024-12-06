@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchCurrentUserPosts, updatePostById, deletePostById } from '../../store/posts';
-import './Posts.css';
 // import { Link } from "react-router-dom";
 import ConfirmDeleteModal from "../ConfirmDeleteModal/ConfirmDeleteModal";
+import './Posts.css';
 
 const Posts = () => {
     const dispatch = useDispatch();
@@ -42,13 +42,36 @@ const Posts = () => {
         setEditContent(post.fan_post);
     };
 
-    const handleSaveEdit = async () => {
-        if (editingPostId) {
+    // const handleSaveEdit = async () => {
+
+    //     const currentPost = posts.find((p) => p.id === editingPostId);
+
+    //     if (editingPostId) {
+    //         const updatedPost = {
+    //             title: editTitle,
+    //             fan_post: editContent,
+    //             images: currentPost.images || [],
+    //         };
+
+    //         console.log("Updated Post Object:", updatedPost); // Debugging
+
+    //         await dispatch(updatePostById(editingPostId, updatedPost));
+    //         setEditingPostId(null);
+    //         setEditTitle('');
+    //         setEditContent('');
+    //     }
+    // };
+
+    const handleSaveEdit = async (post) => {
+        console.log("\n!!!!Post!!! ", post);
+        if (post) {
             const updatedPost = {
                 title: editTitle,
                 fan_post: editContent,
+                images: post.images || [], // Include existing images
             };
-            await dispatch(updatePostById(editingPostId, updatedPost));
+            console.log("\n\n!!!Updated Post Object:", updatedPost); // Debugging
+            await dispatch(updatePostById(post.id, updatedPost));
             setEditingPostId(null);
             setEditTitle('');
             setEditContent('');
@@ -85,8 +108,28 @@ const Posts = () => {
                                         onChange={(e) => setEditContent(e.target.value)}
                                     />
                                 </label>
+
+                                {/* Add Image */}
+                                
+                                {post.images?.[0] && (
+                                    <div className="post-image-container">                                     
+                                        <img
+                                            src={`http://localhost:8000${post.images[0]}`}
+                                            alt="Post Image"  
+                                            style={{
+                                                width: "300px",
+                                                height: "200px",
+                                                objectFit: "cover",
+                                            }}
+                                        />
+                                    </div>
+                                )}
+
                                 <div className="post-actions">
-                                    <button onClick={handleSaveEdit} className="btn-primary">Save</button>
+                                    <>
+                                    {console.log("\n!!????Post!!! ", post)}
+                                    </>
+                                    <button onClick={() => handleSaveEdit(post)} className="btn-primary">Save</button>
                                     <button onClick={handleCancelEdit} className="btn-secondary">Cancel</button>
                                 </div>
                             </div>
@@ -105,6 +148,23 @@ const Posts = () => {
                                             : post.fan_post}
                                     </p>
                                 </div>
+
+                                {/* Add Image */}
+                                {post.images?.[0] && (
+                                    <div className="post-image-container">  
+                                        
+                                        <img
+                                            src={`http://localhost:8000${post.images[0]}`}
+                                            alt="Post Image"  
+                                            style={{
+                                                width: "100%",
+                                                height: "auto",
+                                                objectFit: "cover",
+                                                maxWidth: "600px",
+                                            }}
+                                        />
+                                    </div>
+                                )}
         
                                 {/* Post Actions */}
                                 <div className="post-actions">

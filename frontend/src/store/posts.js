@@ -4,7 +4,6 @@ const LOAD_POST = "posts/loadPost";
 const LOAD_POSTS = "posts/loadPosts";
 const LOAD_ALL_POSTS = "posts/loadAllPosts";
 const CREATE_POST = "posts/createPost";
-// const CREATE_REVIEW = "posts/createReview";
 const UPDATE_POST = "posts/updatePost";
 const DELETE_POST = "posts/deletePost";
 // const UPDATE_POST_IMAGES = "posts/updatePostImages";
@@ -87,16 +86,42 @@ export const fetchCurrentUserPosts = () => async (dispatch) => {
 };
 
 
-export const fetchPostById = (id) => async (dispatch) => {
+// export const fetchPostById = (id) => async (dispatch) => {
+//     try {
+//         const response = await csrfFetch(`/api/posts/${id}`);
+//         if (!response.ok) throw response;
+//         const post = await response.json();
+//         dispatch(loadPost(post));
+//     } catch (err) {
+//         console.error('Error fetching post details:', err);
+//         const errorData = await err.json();
+//         return errorData.errors || ['Error fetching post details'];
+//     }
+// };
+
+export const fetchPostById = (postId) => async (dispatch) => {
     try {
-        const response = await csrfFetch(`/api/posts/${id}`);
-        if (!response.ok) throw response;
-        const post = await response.json();
+        const response = await csrfFetch(`/api/posts/${postId}`); // Fetch from the correct endpoint
+        if (!response.ok) throw response; // Throw an error if the response is not OK
+
+        const post = await response.json(); // Parse the JSON response
+        console.log("Fetched Post Details:", post); // Debugging: Log the fetched post
+
+        // Dispatch the action to store the post in Redux
         dispatch(loadPost(post));
+        return post; // Optionally return the post for further use
     } catch (err) {
-        console.error('Error fetching post details:', err);
-        const errorData = await err.json();
-        return errorData.errors || ['Error fetching post details'];
+        console.error("Error fetching post details:", err);
+
+        // Attempt to parse the error response
+        let errorData;
+        try {
+            errorData = await err.json();
+        } catch (parseError) {
+            errorData = { errors: ["Unable to parse error response"] };
+        }
+
+        return errorData.errors || ["Error fetching post details"];
     }
 };
 
@@ -184,8 +209,6 @@ export const createNewComment = (postId, commentData) => async (dispatch) => {
     }
 };
 
-
-
 const initialState = {
     currentUserPosts: {},
     allPosts: {}
@@ -200,14 +223,15 @@ const postsReducer = (state = initialState, action) => {
             });
             return newState;
         }
+                
         case LOAD_ALL_POSTS: {
-            console.log('\nLOAD_ALL_POSTS:\n', action.posts); // Debugging step
-            const newState = { ...state, allPosts: {} };
+            const newState = { ...state, allPosts: { ...state.allPosts } };
             action.posts.forEach(post => {
                 newState.allPosts[post.id] = post;
             });
             return newState;
         }
+
         case LOAD_CURRENT_USER_POSTS: {
             const newState = { ...state, currentUserPosts: {} };
             action.posts.forEach((post) => {
@@ -215,52 +239,82 @@ const postsReducer = (state = initialState, action) => {
             });
             return newState;
         }
-        case LOAD_POST: {
-            const newState = { ...state.currentUserPosts };
-            // const postWithReviews = action.post;
 
-            // newState[postWithReviews.id] = {
-            //     ...newState[postWithReviews.id],
-            //     ...postWithReviews,
-            // };
-            newState[action.post.id] = action.post;
-            return { ...state, currentUserPosts: newState };
+        case LOAD_POST: {
+            const newState = { ...state };
+            newState.currentUserPosts = { ...state.currentUserPosts, [action.post.id]: action.post };
+            return newState;
         }
-        case CREATE_POST: {
-            const newState = { ...state.currentUserPosts };
-            newState[action.post.id] = action.post;
-            return { ...state, currentUserPosts: newState };
-        }
-        // case CREATE_REVIEW: {
+
+        // case CREATE_POST: {
         //     const newState = { ...state.currentUserPosts };
-        //     const postId = action.review.postId;
-        //     if (newState[postId]) {
-        //         newState[postId].Reviews = [
-        //             ...(newState[postId].Reviews || []),
-        //             action.review
-        //         ];
-        //         newState[postId].numReviews = (newState[postId].numReviews || 0) + 1;
-        //     }
+        //     newState[action.post.id] = action.post;
         //     return { ...state, currentUserPosts: newState };
         // }
+
+        case CREATE_POST: {
+            const newState = { ...state };
+            newState.currentUserPosts = { ...state.currentUserPosts, [action.post.id]: action.post };
+            return newState;
+        }
+        
+        // case CREATE_COMMENT: {
+        //     const newState = { ...state };
+        //     const post = newState.currentUserPosts[action.postId];
+        //     if (post) {
+        //         post.comments = [...post.comments, action.comment];
+        //     }
+        //     return newState;
+        // }
+
         case CREATE_COMMENT: {
             const newState = { ...state };
             const post = newState.currentUserPosts[action.postId];
             if (post) {
-                post.comments = [...post.comments, action.comment];
+                newState.currentUserPosts[action.postId] = {
+                    ...post,
+                    comments: [...(post.comments || []), action.comment],
+                };
             }
             return newState;
         }
+
+        // case UPDATE_POST: {
+        //     const newState = { ...state.currentUserPosts };
+        //     newState[action.post.id] = action.post;
+        //     return { ...state, currentUserPosts: newState };
+        // }
+
         case UPDATE_POST: {
-            const newState = { ...state.currentUserPosts };
-            newState[action.post.id] = action.post;
-            return { ...state, currentUserPosts: newState };
+            const newState = { ...state };
+            newState.currentUserPosts = { ...state.currentUserPosts, [action.post.id]: action.post };
+            return newState;
         }
+
+        // case DELETE_POST: {
+        //     const newState = { ...state.currentUserPosts };
+        //     delete newState[action.postId];
+        //     return { ...state, currentUserPosts: newState };
+        // }
+
+        // case DELETE_POST: {
+        //     const newState = { ...state };
+        //     newState.currentUserPosts = { ...state.currentUserPosts };
+        //     delete newState.currentUserPosts[action.postId];
+        //     return newState;
+        // }
+
         case DELETE_POST: {
-            const newState = { ...state.currentUserPosts };
-            delete newState[action.postId];
-            return { ...state, currentUserPosts: newState };
+            const newState = {
+                ...state,
+                currentUserPosts: { ...state.currentUserPosts },
+                allPosts: { ...state.allPosts }
+            };
+            delete newState.currentUserPosts[action.postId];
+            delete newState.allPosts[action.postId];
+            return newState;
         }
+
         // case UPDATE_POST_IMAGES: {
         //     const { postId, images } = action;
         //     const updatedPost = {
@@ -277,4 +331,11 @@ const postsReducer = (state = initialState, action) => {
     }
 };
 
+
+
+
 export default postsReducer;
+
+
+
+

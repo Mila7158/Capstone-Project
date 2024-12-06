@@ -3,7 +3,7 @@
     margin: 0 auto;
     padding: 20px;
     font-family: Arial, sans-serif;
-    background-color: #f9f9f9;
+    background-color: #aec0d6;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
@@ -15,6 +15,14 @@
     text-align: center;
 }
 
+.edit-input-title,
+.edit-input-image-url,
+.edit-input-content {
+    width: 100% ;   
+    margin-bottom: 10px;     
+    padding: 8px;            
+}
+
 .post-author {
     font-size: 16px;
     color: #666;
@@ -23,6 +31,7 @@
 }
 
 .post-content {
+
     font-size: 16px;
     color: #444;
     line-height: 1.6;

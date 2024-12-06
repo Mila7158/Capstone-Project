@@ -4,10 +4,10 @@ import { useNavigate, useParams } from "react-router-dom";
 import { fetchPostById, updatePostById } from "../../store/posts";
 
 function UpdatePost() {
-    const { id } = useParams();
+    const { postId } = useParams();
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const post = useSelector((state) => state.posts?.currentUserPosts[id]);
+    const post = useSelector((state) => state.posts?.currentUserPosts[postId]);
     const [formData, setFormData] = useState({
         title: "",
         fan_post: "",
@@ -17,14 +17,14 @@ function UpdatePost() {
 
     useEffect(() => {
         if (!post) {
-            dispatch(fetchPostById(id));
+            dispatch(fetchPostById(postId));
         } else {
             setFormData({
                 title: post.title || "",
                 fan_post: post.fan_post || "",
             });
         }
-    }, [dispatch, id, post]);
+    }, [dispatch, postId, post]);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -50,9 +50,9 @@ function UpdatePost() {
         };
 
         try {
-            await dispatch(updatePostById(id, postData));
+            await dispatch(updatePostById(postId, postData));
             alert("Post updated successfully!");
-            navigate(`/posts/${id}`); // Navigate to the updated post's details page
+            navigate(`/posts/${postId}`); // Navigate to the updated post's details page
         } catch (err) {
             setErrors(err.errors || [err.message]);
         }

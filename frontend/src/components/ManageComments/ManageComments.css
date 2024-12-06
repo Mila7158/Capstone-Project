@@ -10,6 +10,10 @@
     margin-bottom: 20px;
 }
 
+.manage-comments .post-tile {
+    background-color: #f1f4f8 !important;
+}
+
 .comment-content {
     font-size: 14px;
     color: #666;   
